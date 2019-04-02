@@ -1,0 +1,53 @@
+PODS:
+  - Alamofire (4.8.1)
+  - BaiduMapKit (4.3.0)
+  - BlueSocket (1.0.44)
+  - BMKLocationKit (1.5.0)
+  - HandyJSON (5.0.0-beta)
+  - Kingfisher (5.3.0)
+  - Starscream (3.0.6)
+  - SwiftSocket (2.0.2)
+
+DEPENDENCIES:
+  - Alamofire
+  - BaiduMapKit
+  - BlueSocket
+  - BMKLocationKit
+  - HandyJSON (from `https://github.com/alibaba/HandyJSON.git`, branch `dev_for_swift5.0`)
+  - Kingfisher
+  - Starscream
+  - SwiftSocket
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Alamofire
+    - BaiduMapKit
+    - BlueSocket
+    - BMKLocationKit
+    - Kingfisher
+    - Starscream
+    - SwiftSocket
+
+EXTERNAL SOURCES:
+  HandyJSON:
+    :branch: dev_for_swift5.0
+    :git: https://github.com/alibaba/HandyJSON.git
+
+CHECKOUT OPTIONS:
+  HandyJSON:
+    :commit: da19ac4e0f7810302a033cf3315c5687d2bf090d
+    :git: https://github.com/alibaba/HandyJSON.git
+
+SPEC CHECKSUMS:
+  Alamofire: 16ce2c353fb72865124ddae8a57c5942388f4f11
+  BaiduMapKit: 63575d9236b4112c4ff76391df637f2a6dc1ada8
+  BlueSocket: 4812c58c34e6d667bc43736ec9c855cf408b98f0
+  BMKLocationKit: 40d267478acd8704ddebd0e9deaddc727b13df9f
+  HandyJSON: b84ac9904050a0897a0802092b7cb8808e0a4e9a
+  Kingfisher: 4692c783ffb99e9e2e40a6eb3e518c3b96c6fa8c
+  Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
+  SwiftSocket: 6f4c9c63fbc5c1d61188936bb3c599fd546f40ae
+
+PODFILE CHECKSUM: 0538ab4ed8186182f5c0268aeab713650fbb5742
+
+COCOAPODS: 1.5.3
