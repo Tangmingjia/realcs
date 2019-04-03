@@ -1,10 +1,8 @@
-class Host{
     //嘉兴
-    var Host = "118.25.79.85"
+    public let Host = "118.25.79.85"
     //跳马镇
-//    var Host = "118.25.172.69"
+//   public let Host = "118.25.172.69"
     //泰州
-//    var Host = "212.64.4.119"
+//   public let Host = "212.64.4.119"
     //上海宝山
-//    var Host = "118.25.51.43"
-}
+//   public let Host = "118.25.51.43"

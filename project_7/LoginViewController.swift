@@ -14,7 +14,9 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     let kAppdelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
     var webView: WKWebView!
     var Login : LoginView?
-    var packageNo : String = ""
+    var Array : Array = [String]()
+    var packageNo : String?
+    var oId : Int?
     var person_id : Int = 0
     var game_id : Int = 0
     var team_id : Int = 0
@@ -28,6 +30,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         self.view.addSubview(Login!)
         
         Login?.TextField?.delegate = self
+        Login?.oidField?.delegate = self
         Login?.LoginButton?.addTarget(self, action: #selector(login), for: .touchUpInside)
         Login?.ScanButton?.addTarget(self, action: #selector(scan), for: .touchUpInside)
     }
@@ -37,29 +40,38 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         self.navigationController?.navigationBar.isHidden = true
     }
     @objc func login(){
-        packageNo = (Login?.TextField?.text)!
-        Alamofire.request("http://\(Host().Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo]).responseString { (response) in
-            if response.result.isSuccess {
-                if let jsonString = response.result.value {
-                    if let responseModel = Model_1.deserialize(from: jsonString) {
-                        if responseModel.respCode != "200" {
-                            self.hud()
-                        }else{
-                            self.person_id = responseModel.data.person_id
-                            self.game_id = responseModel.data.game_id
-                            self.team_id = responseModel.data.team_id
-                            let vc = GameViewController()
-                            vc.packageNo = self.packageNo
-                            vc.game_id = self.game_id
-                            vc.person_id = self.person_id
-                            vc.team_id = self.team_id
-                            self.navigationController?.pushViewController(vc, animated: true)
+        if Login?.TextField?.text != nil{
+            packageNo = Login?.TextField?.text
+        }
+        if Login?.oidField?.text != nil{
+            oId = Int((Login?.oidField?.text)!)
+        }
+        if packageNo != nil && oId != nil{
+            Alamofire.request("http://\(Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo!, "oId": oId!]).responseString { (response) in
+                if response.result.isSuccess {
+                    if let jsonString = response.result.value {
+                        if let responseModel = Model_1.deserialize(from: jsonString) {
+                            if responseModel.respCode != "200" {
+                                self.hud()
+                            }else{
+                                self.person_id = responseModel.data.person_id
+                                self.game_id = responseModel.data.game_id
+                                self.team_id = responseModel.data.team_id
+                                let vc = GameViewController()
+                                vc.packageNo = self.packageNo
+                                vc.game_id = self.game_id
+                                vc.person_id = self.person_id
+                                vc.team_id = self.team_id
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            }
                         }
                     }
+                }else{
+                    self.hud_2()
                 }
-            }else{
-                self.hud_2()
             }
+        }else{
+            hud_3()
         }
     }
     @objc func scan(){
@@ -98,10 +110,12 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     
     func scanFinished(scanResult: LBXScanResult, error: String?) {
 //            print("扫描结果：" + scanResult.strScanned!)
-        packageNo = scanResult.strScanned!
+        Array = scanResult.strScanned!.components(separatedBy: ",")
+        packageNo = Array[1]
+        oId = Int(Array[0])!
         let alertView = UIAlertController(title: "腰包绑定成功", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
-            Alamofire.request("http://\(Host().Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": self.packageNo]).responseString { (response) in
+            Alamofire.request("http://\(Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": self.packageNo!, "oId": self.oId!]).responseString { (response) in
                 if response.result.isSuccess {
                     if let jsonString = response.result.value {
                         if let responseModel = Model_1.deserialize(from: jsonString) {
@@ -133,6 +147,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         Login?.TextField?.resignFirstResponder()
+        Login?.oidField?.resignFirstResponder()
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -154,5 +169,13 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         alertView.addAction(action)
         self.present(alertView, animated: true, completion: nil)
     }
+    func hud_3() {
+        let alertView = UIAlertController(title: "请输入腰包ID和机构ID", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
+        })
+        alertView.addAction(action)
+        self.present(alertView, animated: true, completion: nil)
+    }
+
 }
 

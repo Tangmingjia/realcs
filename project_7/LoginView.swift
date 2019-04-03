@@ -8,6 +8,8 @@ class LoginView : UIView {
     
     var TextField : UITextField?
     
+    var oidField : UITextField?
+    
     var LoginButton : UIButton?
     
     var ScanButton : UIButton?
@@ -29,6 +31,10 @@ class LoginView : UIView {
         self.TextField = UITextField()
         
         self.addSubview(TextField!)
+        
+        self.oidField = UITextField()
+        
+        self.addSubview(oidField!)
         
         self.ScanButton = UIButton()
         
@@ -54,17 +60,29 @@ class LoginView : UIView {
         self.LogoImage?.frame = CGRect(x: 20, y: 20, width: 100, height: 100)
         self.LogoImage?.image = UIImage(named: "logo.png")
         
-        self.TextField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-40, width: 200, height: 30)
+        self.TextField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-40, width: 130, height: 30)
         self.TextField?.backgroundColor = UIColor.white
-        self.TextField?.attributedPlaceholder = NSAttributedString.init(string:"请输入腰包号", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
+        self.TextField?.attributedPlaceholder = NSAttributedString.init(string:"腰包ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
         self.TextField?.textAlignment = .center
         self.TextField?.font = UIFont.systemFont(ofSize: 13)
         self.TextField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
         self.TextField?.layer.borderWidth = 1
         self.TextField?.layer.cornerRadius = 5
         self.TextField?.layer.masksToBounds = true
-        self.TextField?.keyboardType = .default
+        self.TextField?.keyboardType = .numbersAndPunctuation
         self.TextField?.returnKeyType = .done
+        
+        self.oidField?.frame = CGRect(x: ScreenSize.width/2+40, y: ScreenSize.height/2-40, width: 60, height: 30)
+        self.oidField?.backgroundColor = UIColor.white
+        self.oidField?.attributedPlaceholder = NSAttributedString.init(string:"机构ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
+        self.oidField?.textAlignment = .center
+        self.oidField?.font = UIFont.systemFont(ofSize: 13)
+        self.oidField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
+        self.oidField?.layer.borderWidth = 1
+        self.oidField?.layer.cornerRadius = 5
+        self.oidField?.layer.masksToBounds = true
+        self.oidField?.keyboardType = .numberPad
+        self.oidField?.returnKeyType = .done
         
         self.LoginButton?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2, width: 200, height: 30)
         self.LoginButton?.setTitle("登录", for: .normal)

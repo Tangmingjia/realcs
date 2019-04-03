@@ -1,7 +1,6 @@
 import UIKit
 import WebKit
 import Starscream
-import CoreBluetooth
 import CoreLocation
 import Kingfisher
 
@@ -12,10 +11,9 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     var person_id : Int = 0
     var packageNo : String!
     let cache = ImageCache.default
-//    let serverPort:UInt16 = 25409
-//    var clientSocket:GCDAsyncSocket!
-//    var mainQueue = DispatchQueue.main
-//    var msgView: UITextView!
+    var clientSocket:GCDAsyncSocket!
+    var mainQueue = DispatchQueue.main
+    var msgView: UITextView!
     let gps = CLLocationManager()
     var websocket : WebSocket?
     var Hat : String = ""
@@ -86,20 +84,20 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         gps.startUpdatingLocation()
         
         //webscoket
-        websocket = WebSocket(url: URL(string: "http://\(Host().Host):8998/websocket/\(self.game_id)/0/\(self.team_id)")!)
+        websocket = WebSocket(url: URL(string: "http://\(Host):8998/websocket/\(self.game_id)/0/\(self.team_id)")!)
         websocket!.delegate = self
         websocket!.connect()
         
         //scoket
-//        do {
-//            clientSocket = GCDAsyncSocket()
-//            clientSocket.delegate = self
-//            clientSocket.delegateQueue = DispatchQueue.global()
-//            try clientSocket.connect(toHost: "\(Host().IP)", onPort: serverPort)
-//            }
-//        catch {
-//            print("error")
-//            }
+        do {
+            clientSocket = GCDAsyncSocket()
+            clientSocket.delegate = self
+            clientSocket.delegateQueue = DispatchQueue.global()
+            try clientSocket.connect(toHost: "\(Host)", onPort: 25409)
+            }
+        catch {
+            print("error")
+            }
 
         game = GameView()
         game?.frame = CGRect(x: 0, y: 0, width: ScreenSize.width, height: ScreenSize.height)
@@ -125,22 +123,29 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
             let url = URL(fileURLWithPath: voiceUrl.absoluteString)
             self.UrlArray.append(url)
         }
-        
+        //隐藏百度logo
+        let mView = game?.mapView?.subviews.first
+        for logoView in mView!.subviews {
+            if logoView is UIImageView {
+                let b_logo = logoView as? UIImageView
+                b_logo?.isHidden = true
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.navigationBar.isHidden = true
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = false  //防止右滑返回
         game?.mapView?.viewWillAppear()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        //        btn.stop()
         NotificationCenter.default.removeObserver(self)
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
+//        UIDevice.current.endGeneratingDeviceOrientationNotifications()
         game?.mapView?.viewWillDisappear()
-        websocket?.disconnect()
+        websocket!.disconnect()
 //        //清理内存缓存
 //        cache.clearMemoryCache()
 //
@@ -240,6 +245,9 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     }
     func websocketDidDisconnect(socket: WebSocketClient, error: Error?) {
 //        print("连接失败:\(String(describing: error))")
+        if !websocket!.isConnected {
+            websocket?.connect()
+        }
     }
     func websocketDidReceiveMessage(socket: WebSocketClient, text: String) {
 //        print("接收消息:\(text)")
@@ -607,7 +615,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return IconArray.count
+        return TeamIcon.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -720,7 +728,6 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         let srctype = BMKLocationCoordinateType.WGS84    //原始坐标系
         let destype = BMKLocationCoordinateType.BMK09LL  //百度坐标系
         let cood: CLLocationCoordinate2D = BMKLocationManager.bmkLocationCoordinateConvert(coodinate, srcType: srctype, desType: destype)
-        
         location = BMKPointAnnotation()
         location?.coordinate = cood
         game?.mapView?.addAnnotation(location!)
@@ -757,11 +764,18 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                 annotationView = BMKAnnotationView(annotation: annotation, reuseIdentifier: "annotationReuseIndetifier")
             }
             if annotation.isEqual(location){
-                let image = UIImage(data: try! Data(contentsOf: URL(string: MyIcon!)!))
-                ImageCache.default.store(image!, forKey: MyIcon!)
-                ImageCache.default.retrieveImage(forKey: MyIcon!, options: nil) { (image, cacheType) in
-                    annotationView?.image = image
+                if cache.isCached(forKey: MyIcon!) {
+                    ImageCache.default.retrieveImage(forKey: MyIcon!, options: nil) { (image, cacheType) in
+                        annotationView?.image = image
+                    }
+                }else{
+                    let image = UIImage(data: try! Data(contentsOf: URL(string: MyIcon!)!))
+                    ImageCache.default.store(image!, forKey: MyIcon!)
+                    ImageCache.default.retrieveImage(forKey: MyIcon!, options: nil) { (image, cacheType) in
+                        annotationView?.image = image
+                    }
                 }
+
             }else{
                 if cache.isCached(forKey: IconArray[i]) {
                     ImageCache.default.retrieveImage(forKey: IconArray[i], options: nil) { (image, cacheType) in
@@ -802,42 +816,41 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         return nil
     }
     
-//    func socket(_ sock: GCDAsyncSocket, didConnectToHost host: String, port: UInt16) -> Void {
-//        print("connect success")
-//        clientSocket.readData(withTimeout: -1, tag: 0)
-//    }
-//
-//    func socketDidDisconnect(_ sock: GCDAsyncSocket, withError err: Error?) -> Void {
-//        print("connect error: \(String(describing: err))")
-//    }
-//
-//    func socket(_ sock: GCDAsyncSocket, didRead data: Data, withTag tag: Int) -> Void {
-//        // 1、获取客户端发来的数据，把 NSData 转 NSString
-//        print(data)
-//        let readClientDataString: NSString? = NSString(data: data as Data, encoding: String.Encoding.utf8.rawValue)
-//        print("---Data Recv---")
-//        print(readClientDataString)
-//
-//        // 2、主界面UI显示数据
-//        DispatchQueue.main.async {
-//            let showStr: NSMutableString = NSMutableString()
-//            showStr.append(self.msgView.text)
-//            showStr.append(readClientDataString! as String)
-//            showStr.append("\r\n")
-//            self.msgView.text = showStr as String
-//        }
-//
-//        print(msgView.text)
-//
-//        // 3、处理请求，返回数据给客户端OK
-//        let serviceStr: NSMutableString = NSMutableString()
-//        serviceStr.append("OK")
-//        serviceStr.append("\r\n")
-//        clientSocket.write(serviceStr.data(using: String.Encoding.utf8.rawValue)!, withTimeout: -1, tag: 0)
-//
-//        // 4、每次读完数据后，都要调用一次监听数据的方法
-//        clientSocket.readData(withTimeout: -1, tag: 0)
-//    }
+    func socket(_ sock: GCDAsyncSocket, didConnectToHost host: String, port: UInt16) -> Void {
+        print("connect success")
+        clientSocket.readData(withTimeout: -1, tag: 0)
+    }
+
+    func socketDidDisconnect(_ sock: GCDAsyncSocket, withError err: Error?) -> Void {
+        print("connect error: \(String(describing: err))")
+    }
+
+    func socket(_ sock: GCDAsyncSocket, didRead data: Data, withTag tag: Int) -> Void {
+        // 1、获取客户端发来的数据，把 NSData 转 NSString
+        let readClientDataString: NSString? = NSString(data: data as Data, encoding: String.Encoding.utf8.rawValue)
+        print("---Data Recv---")
+        print(readClientDataString)
+
+        // 2、主界面UI显示数据
+        DispatchQueue.main.async {
+            let showStr: NSMutableString = NSMutableString()
+            showStr.append(self.msgView.text)
+            showStr.append(readClientDataString! as String)
+            showStr.append("\r\n")
+            self.msgView.text = showStr as String
+        }
+
+        print(msgView.text)
+
+        // 3、处理请求，返回数据给客户端OK
+        let serviceStr: NSMutableString = NSMutableString()
+        serviceStr.append("OK")
+        serviceStr.append("\r\n")
+        clientSocket.write(serviceStr.data(using: String.Encoding.utf8.rawValue)!, withTimeout: -1, tag: 0)
+
+        // 4、每次读完数据后，都要调用一次监听数据的方法
+        clientSocket.readData(withTimeout: -1, tag: 0)
+    }
 
 }
 
