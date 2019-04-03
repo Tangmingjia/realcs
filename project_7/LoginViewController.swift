@@ -38,7 +38,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     }
     @objc func login(){
         packageNo = (Login?.TextField?.text)!
-        Alamofire.request("\(Host().FinalHost)/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo]).responseString { (response) in
+        Alamofire.request("http://\(Host().Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo]).responseString { (response) in
             if response.result.isSuccess {
                 if let jsonString = response.result.value {
                     if let responseModel = Model_1.deserialize(from: jsonString) {
@@ -101,7 +101,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         packageNo = scanResult.strScanned!
         let alertView = UIAlertController(title: "腰包绑定成功", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
-            Alamofire.request("\(Host().FinalHost)/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": self.packageNo]).responseString { (response) in
+            Alamofire.request("http://\(Host().Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": self.packageNo]).responseString { (response) in
                 if response.result.isSuccess {
                     if let jsonString = response.result.value {
                         if let responseModel = Model_1.deserialize(from: jsonString) {

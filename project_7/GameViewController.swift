@@ -86,7 +86,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         gps.startUpdatingLocation()
         
         //webscoket
-        websocket = WebSocket(url: URL(string: "\(Host().FinalHost)/websocket/\(self.game_id)/0/\(self.team_id)")!)
+        websocket = WebSocket(url: URL(string: "http://\(Host().Host):8998/websocket/\(self.game_id)/0/\(self.team_id)")!)
         websocket!.delegate = self
         websocket!.connect()
         
