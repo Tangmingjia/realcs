@@ -7,19 +7,18 @@
 //
 
 import UIKit
-import WebKit
 import Alamofire
 import Starscream
+public var packageNo : String?
+public var oId : String?
+public var person_id : Int?
+public var game_id : Int?
+public var team_id : Int?
+public var Host : String?
 class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavigationControllerDelegate,UITextFieldDelegate {
     let kAppdelegate: AppDelegate? = UIApplication.shared.delegate as? AppDelegate
-    var webView: WKWebView!
     var Login : LoginView?
     var Array : Array = [String]()
-    var packageNo : String?
-    var oId : Int?
-    var person_id : Int = 0
-    var game_id : Int = 0
-    var team_id : Int = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         UIDevice.current.setValue(NSNumber(value: UIDeviceOrientation.landscapeLeft.rawValue), forKey: "orientation")
@@ -29,10 +28,15 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         Login = LoginView(frame: CGRect(x: 0, y: 0, width: ScreenSize.width, height: ScreenSize.height))
         self.view.addSubview(Login!)
         
-        Login?.TextField?.delegate = self
+        Login?.HostField?.delegate = self
+        Login?.packageField?.delegate = self
         Login?.oidField?.delegate = self
         Login?.LoginButton?.addTarget(self, action: #selector(login), for: .touchUpInside)
         Login?.ScanButton?.addTarget(self, action: #selector(scan), for: .touchUpInside)
+        
+        Login?.HostField?.text = UserDefaults.standard.object(forKey: "Host") as? String
+        Login?.packageField?.text = UserDefaults.standard.object(forKey: "packageNo") as? String
+        Login?.oidField?.text = UserDefaults.standard.object(forKey: "oId") as? String
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -40,28 +44,30 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         self.navigationController?.navigationBar.isHidden = true
     }
     @objc func login(){
-        if Login?.TextField?.text != nil{
-            packageNo = Login?.TextField?.text
+        if Login?.HostField?.text != nil{
+            Host = Login?.HostField?.text
+            UserDefaults.standard.set(Host, forKey: "Host")
+        }
+        if Login?.packageField?.text != nil{
+            packageNo = Login?.packageField?.text
+            UserDefaults.standard.set(packageNo, forKey: "packageNo")
         }
         if Login?.oidField?.text != nil{
-            oId = Int((Login?.oidField?.text)!)
+            oId = Login?.oidField?.text
+            UserDefaults.standard.set(oId, forKey: "oId")
         }
-        if packageNo != nil && oId != nil{
-            Alamofire.request("http://\(Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo!, "oId": oId!]).responseString { (response) in
+        if Host != nil && packageNo != nil && oId != nil{
+            Alamofire.request("http://\(Host!):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo!, "oId": Int(oId!)]).responseString { (response) in
                 if response.result.isSuccess {
                     if let jsonString = response.result.value {
                         if let responseModel = Model_1.deserialize(from: jsonString) {
                             if responseModel.respCode != "200" {
                                 self.hud()
                             }else{
-                                self.person_id = responseModel.data.person_id
-                                self.game_id = responseModel.data.game_id
-                                self.team_id = responseModel.data.team_id
+                                person_id = responseModel.data.person_id
+                                game_id = responseModel.data.game_id
+                                team_id = responseModel.data.team_id
                                 let vc = GameViewController()
-                                vc.packageNo = self.packageNo
-                                vc.game_id = self.game_id
-                                vc.person_id = self.person_id
-                                vc.team_id = self.team_id
                                 self.navigationController?.pushViewController(vc, animated: true)
                             }
                         }
@@ -111,42 +117,44 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     func scanFinished(scanResult: LBXScanResult, error: String?) {
 //            print("扫描结果：" + scanResult.strScanned!)
         Array = scanResult.strScanned!.components(separatedBy: ",")
-        packageNo = Array[1]
-        oId = Int(Array[0])!
-        let alertView = UIAlertController(title: "腰包绑定成功", message: "", preferredStyle: .alert)
-        let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
-            Alamofire.request("http://\(Host):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": self.packageNo!, "oId": self.oId!]).responseString { (response) in
-                if response.result.isSuccess {
-                    if let jsonString = response.result.value {
-                        if let responseModel = Model_1.deserialize(from: jsonString) {
-                            if responseModel.msg == "游戏结束" {
-                                self.hud()
-                            }
-                            else if responseModel.msg == "游戏未开始" {
-                                self.hud()
-                            }else{
-                                self.person_id = responseModel.data.person_id
-                                self.game_id = responseModel.data.game_id
-                                self.team_id = responseModel.data.team_id
-                                let vc = GameViewController()
-                                vc.packageNo = self.packageNo
-                                vc.game_id = self.game_id
-                                vc.person_id = self.person_id
-                                vc.team_id = self.team_id
-                                self.navigationController?.pushViewController(vc, animated: true)
+        if Array.count == 3 {
+            Host = Array[2]
+            packageNo = Array[1]
+            oId = Array[0]
+            let alertView = UIAlertController(title: "扫描成功", message: "", preferredStyle: .alert)
+            let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
+                Alamofire.request("http://\(Host!):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo!, "oId": Int(oId!)]).responseString { (response) in
+                    if response.result.isSuccess {
+                        if let jsonString = response.result.value {
+                            if let responseModel = Model_1.deserialize(from: jsonString) {
+                                if responseModel.msg == "游戏结束" {
+                                    self.hud()
+                                }
+                                else if responseModel.msg == "游戏未开始" {
+                                    self.hud()
+                                }else{
+                                    person_id = responseModel.data.person_id
+                                    game_id = responseModel.data.game_id
+                                    team_id = responseModel.data.team_id
+                                    let vc = GameViewController()
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                }
                             }
                         }
+                    }else{
+                        self.hud_2()
                     }
-                }else{
-                    self.hud_2()
                 }
-            }
-        })
-        alertView.addAction(action)
-        self.present(alertView, animated: true, completion: nil)
+            })
+            alertView.addAction(action)
+            self.present(alertView, animated: true, completion: nil)
+        }else{
+            hud_4()
+        }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        Login?.TextField?.resignFirstResponder()
+        Login?.HostField?.resignFirstResponder()
+        Login?.packageField?.resignFirstResponder()
         Login?.oidField?.resignFirstResponder()
     }
     
@@ -170,12 +178,18 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         self.present(alertView, animated: true, completion: nil)
     }
     func hud_3() {
-        let alertView = UIAlertController(title: "请输入腰包ID和机构ID", message: "", preferredStyle: .alert)
+        let alertView = UIAlertController(title: "请正确输入IP地址和腰包ID和机构ID", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
         })
         alertView.addAction(action)
         self.present(alertView, animated: true, completion: nil)
     }
-
+    func hud_4() {
+        let alertView = UIAlertController(title: "二维码错误", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "确定", style: .default ,handler: { (UIAlertAction) -> Void in
+        })
+        alertView.addAction(action)
+        self.present(alertView, animated: true, completion: nil)
+    }
 }
 

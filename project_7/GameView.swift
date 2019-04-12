@@ -141,7 +141,7 @@ class GameView : UIView {
     func setUI() {
         
         self.mapView?.frame = CGRect(x: 0, y: 0, width: ScreenSize.width, height: ScreenSize.height)
-        self.mapView?.minZoomLevel = 18
+        self.mapView?.minZoomLevel = 16
         self.mapView?.maxZoomLevel = 21
         self.mapView?.showMapScaleBar = true
         self.mapView?.mapScaleBarPosition = CGPoint(x: ScreenSize.width-130, y: ScreenSize.height-35)

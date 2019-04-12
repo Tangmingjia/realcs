@@ -6,7 +6,9 @@ class LoginView : UIView {
 
     var LogoImage : UIImageView?
     
-    var TextField : UITextField?
+    var HostField : UITextField?
+    
+    var packageField : UITextField?
     
     var oidField : UITextField?
     
@@ -28,9 +30,13 @@ class LoginView : UIView {
         
         self.BgImage?.addSubview(LogoImage!)
         
-        self.TextField = UITextField()
+        self.HostField = UITextField()
         
-        self.addSubview(TextField!)
+        self.addSubview(HostField!)
+        
+        self.packageField = UITextField()
+        
+        self.addSubview(packageField!)
         
         self.oidField = UITextField()
         
@@ -60,17 +66,28 @@ class LoginView : UIView {
         self.LogoImage?.frame = CGRect(x: 20, y: 20, width: 100, height: 100)
         self.LogoImage?.image = UIImage(named: "logo.png")
         
-        self.TextField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-40, width: 130, height: 30)
-        self.TextField?.backgroundColor = UIColor.white
-        self.TextField?.attributedPlaceholder = NSAttributedString.init(string:"腰包ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
-        self.TextField?.textAlignment = .center
-        self.TextField?.font = UIFont.systemFont(ofSize: 13)
-        self.TextField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
-        self.TextField?.layer.borderWidth = 1
-        self.TextField?.layer.cornerRadius = 5
-        self.TextField?.layer.masksToBounds = true
-        self.TextField?.keyboardType = .numbersAndPunctuation
-        self.TextField?.returnKeyType = .done
+        self.HostField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-80, width: 200, height: 30)
+        self.HostField?.backgroundColor = UIColor.white
+        self.HostField?.attributedPlaceholder = NSAttributedString.init(string:"IP地址", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
+        self.HostField?.textAlignment = .center
+        self.HostField?.font = UIFont.systemFont(ofSize: 13)
+        self.HostField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
+        self.HostField?.layer.borderWidth = 1
+        self.HostField?.layer.cornerRadius = 5
+        self.HostField?.layer.masksToBounds = true
+        self.HostField?.keyboardType = .decimalPad
+        
+        self.packageField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-40, width: 130, height: 30)
+        self.packageField?.backgroundColor = UIColor.white
+        self.packageField?.attributedPlaceholder = NSAttributedString.init(string:"腰包ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
+        self.packageField?.textAlignment = .center
+        self.packageField?.font = UIFont.systemFont(ofSize: 13)
+        self.packageField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
+        self.packageField?.layer.borderWidth = 1
+        self.packageField?.layer.cornerRadius = 5
+        self.packageField?.layer.masksToBounds = true
+        self.packageField?.keyboardType = .numbersAndPunctuation
+        self.packageField?.returnKeyType = .done
         
         self.oidField?.frame = CGRect(x: ScreenSize.width/2+40, y: ScreenSize.height/2-40, width: 60, height: 30)
         self.oidField?.backgroundColor = UIColor.white

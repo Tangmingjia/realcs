@@ -9,8 +9,6 @@ target 'project_7' do
 	pod 'Alamofire'
 	pod 'HandyJSON', :git => 'https://github.com/alibaba/HandyJSON.git', :branch => 'dev_for_swift5.0'
 	pod 'Starscream'
-	pod 'SwiftSocket'
-	pod 'BlueSocket'
 	pod 'BaiduMapKit'
 	pod 'Kingfisher'
 	pod 'BMKLocationKit'

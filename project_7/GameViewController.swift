@@ -3,29 +3,21 @@ import WebKit
 import Starscream
 import CoreLocation
 import Kingfisher
+import Alamofire
 
+public var mapPath : String?
 class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UICollectionViewDelegate,UICollectionViewDataSource,WebSocketDelegate,ZFJVoiceBubbleDelegate,CLLocationManagerDelegate,BMKMapViewDelegate,UITableViewDelegate,UITableViewDataSource,GCDAsyncSocketDelegate{
+    
+    var syncTile = BMKLocalSyncTileLayer()
     var btn : ZFJVoiceBubble!
-    var team_id : Int = 0
-    var game_id : Int = 0
-    var person_id : Int = 0
-    var packageNo : String!
-    let cache = ImageCache.default
     var clientSocket:GCDAsyncSocket!
-    var mainQueue = DispatchQueue.main
-    var msgView: UITextView!
     let gps = CLLocationManager()
     var websocket : WebSocket?
-    var Hat : String = ""
-    var Clothes : String = ""
-    var Gun : String = ""
-    var HandGun : String = ""
-    var Weapon : String = ""
+    var MyName : String?
     var MyBlood : Int = 0
     var MyDyingBlood : Int = 0
     var MyArmor : Int = 0
     var MyStatus : Int = 0
-    var MyIcon : String?
     var Mylat : CLLocationDegrees?
     var Mylon : CLLocationDegrees?
     var connectStatus : Int = 0
@@ -35,18 +27,11 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     var centerLon: CGFloat = 0.0
     var center : CLLocationCoordinate2D?
     var i = 0
-//    var MyTeam : Array = [RealcsGamePersonListItem()]
+    var MyTeam : [RealcsGamePersonListItem]? = nil
     var annotationArray = [BMKPointAnnotation()]
     var LonArray : Array = [CLLocationDegrees]()
     var LatArray : Array = [CLLocationDegrees]()
     var IconArray : Array = [String]()
-    var TeamIcon : Array = [String]()
-    var TeamName : Array = [String]()
-    var TeamPersonId : Array = [Int]()
-    var TeamStatus : Array = [Int]()
-    var TeamBoold : Array = [Int]()
-    var TeamDyingBoold : Array = [Int]()
-    var TeamArmor  : Array = [Int]()
     var num = 5
     var timer : Timer?
     var bombCenter : Array = [String]()
@@ -65,15 +50,32 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     var PoisonRadius_S : CLLocationDistance?
     var CircleBomb = RealcsGameCircleBomb()
     var CirclePoison = RealcsGameCirclePoison()
-    var Num1 : Int = 0
-    var Num2 : Int = 0
-    var UrlArray : Array = [URL]()
     var game : GameView?
     var location : BMKPointAnnotation?
+    var gpsstr : String = ""
+    var whoami : String = ""
+    var timer_2 : Timer?
+    var jsonData : Data?
+    var jsonData2 : Data?
+    var jsonData3 : Data?
+    var url : URL?
+    var cafstr : String = ""
+    var caf : String?
+    var teamorworld : String?
+    var TeamVoiceName : Array = [String]()
+    var TeamUrlArray : Array = [URL]()
+    var WorldVoiceName : Array = [String]()
+    var WorldUrlArray : Array = [URL]()
+    var TeamVoiceNum : Int = 0
+    var WorldVoiceNum : Int = 0
+    lazy var onecode : Void = {
+        let timer_3 = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(sendgps), userInfo: nil, repeats: true)
+        timer_3.fire()
+    }()
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(noti(n:)), name: NSNotification.Name("noti"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(noti(n:)), name: NSNotification.Name(rawValue: "noti"), object: nil)
         
         //gps
         gps.delegate = self
@@ -84,20 +86,24 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         gps.startUpdatingLocation()
         
         //webscoket
-        websocket = WebSocket(url: URL(string: "http://\(Host):8998/websocket/\(self.game_id)/0/\(self.team_id)")!)
+        websocket = WebSocket(url: URL(string: "http://\(Host!):8998/websocket/\(game_id!)/0/\(team_id!)")!)
         websocket!.delegate = self
         websocket!.connect()
         
         //scoket
         do {
-            clientSocket = GCDAsyncSocket()
-            clientSocket.delegate = self
-            clientSocket.delegateQueue = DispatchQueue.global()
-            try clientSocket.connect(toHost: "\(Host)", onPort: 25409)
+            clientSocket = GCDAsyncSocket(delegate: self, delegateQueue: DispatchQueue.global())
+            try clientSocket.connect(toHost: Host!, onPort: 25409)
             }
         catch {
-            print("error")
             }
+        
+        whoami = "{\"ACTION\":\"phone-whoami\",\"REQUEST_ID\":\"\(UIDevice.current.identifierForVendor!.uuidString)\",\"DATA\":{\"GAME_ID\":\(game_id!),\"PACKAGE_ID\":\"\(packageNo!)\",\"TEAM_ID\":\(team_id!)}}\r\n"
+        jsonData = whoami.data(using: String.Encoding.utf8, allowLossyConversion: false)
+        
+        //发送心跳包
+        timer_2 = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(heart), userInfo: nil, repeats: true)
+        
 
         game = GameView()
         game?.frame = CGRect(x: 0, y: 0, width: ScreenSize.width, height: ScreenSize.height)
@@ -120,8 +126,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         game?.TableView3?.delegate = self
         game?.TableView3?.dataSource = self
         game?.Speech?.sendURLAction = {(_ voiceUrl: URL) -> Void in
-            let url = URL(fileURLWithPath: voiceUrl.absoluteString)
-            self.UrlArray.append(url)
+            self.url = URL(fileURLWithPath: voiceUrl.absoluteString)
         }
         //隐藏百度logo
         let mView = game?.mapView?.subviews.first
@@ -148,10 +153,8 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         websocket!.disconnect()
 //        //清理内存缓存
 //        cache.clearMemoryCache()
-//
 //        // 清理硬盘缓存，这是一个异步的操作
 //        cache.clearDiskCache()
-//
 //        // 清理过期或大小超过磁盘限制缓存。这是一个异步的操作
 //        cache.cleanExpiredDiskCache()
     }
@@ -166,17 +169,43 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         websocket!.delegate = nil
     }
     
+    @objc func heart(){
+        clientSocket.write(jsonData!, withTimeout: -1, tag: 0)
+    }
+    
+    @objc func sendgps(){
+        clientSocket.write(jsonData2!, withTimeout: -1, tag: 0)
+    }
+    
+    @objc func sendmsg(){
+        clientSocket.write(jsonData3!, withTimeout: -1, tag: 0)
+    }
+    
     @objc func noti(n: Notification) {
-        if UrlArray.count > 0 {
-            if game?.SelectBtn?.tag == 0{
-                Num1 += 1
-                game?.TableView1?.reloadData()
-            }
-            else if game?.SelectBtn?.tag == 1{
-                Num2 += 1
-                game?.TableView2?.reloadData()
-            }
+        if game?.SelectBtn?.tag == 0 || game?.SelectBtn?.tag == 2{
+            teamorworld = "team"
+        }else if game?.SelectBtn?.tag == 1{
+            teamorworld = "world"
         }
+        let name = n.object as! String
+        Alamofire.upload(multipartFormData: {(Formdata) in
+            Formdata.append(self.url!, withName: "file", fileName: name, mimeType: "caf")
+        }, to: "http://\(Host!):8998/voice/uploadVoice", encodingCompletion: {(encodingResult) in
+            switch encodingResult {
+            case .success(let upload, _, _):
+                upload.responseJSON(completionHandler: { (response) in
+                    let str = String(data:response.data!, encoding: String.Encoding.utf8)!
+                    if let responseModel = Model_3.deserialize(from: str){
+                        self.caf = responseModel.data
+                        self.cafstr = "{\"ACTION\":\"phone-send-msg\",\"DATA\":{\"PERSON_NAME\":\"\(self.MyName!)\",\"MSG_TYPE\":\"MSG_VOICE\",\"MSG_VOICE\":\"\(self.caf!)\",\"GAME_ID\":\(game_id!),\"PACKAGE_ID\":\"\(packageNo!)\",\"TEAM_ID\":\(team_id!),\"MSG_CHANNEL\":\"\(self.teamorworld!)\"},\"REQUEST_ID\":\"\(UIDevice.current.identifierForVendor!.uuidString)\"}\r\n"
+                        self.jsonData3 = self.cafstr.data(using: String.Encoding.utf8, allowLossyConversion: false)
+                        self.sendmsg()
+                    }
+                })
+            case .failure(let error):
+                print(error)
+            }
+        })
     }
     
     @objc func reload(){
@@ -253,13 +282,6 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
 //        print("接收消息:\(text)")
         if let responseModel = Model_3.deserialize(from: text) {
             if responseModel.flag == nil {
-                TeamIcon.removeAll()
-                TeamName.removeAll()
-                TeamPersonId.removeAll()
-                TeamStatus.removeAll()
-                TeamBoold.removeAll()
-                TeamDyingBoold.removeAll()
-                TeamArmor.removeAll()
                 Equip.removeAll()
                 IconArray.removeAll()
                 LatArray.removeAll()
@@ -267,6 +289,13 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                 game?.mapView?.removeAnnotations(annotationArray)
                 annotationArray.removeAll()
                 if let responseModel = Model_2.deserialize(from: text) {
+                    if responseModel.data?.realcsGameMap?.mapPath != nil {
+                        mapPath = responseModel.data?.realcsGameMap?.mapPath
+                        //瓦片
+                        syncTile.maxZoom = 21
+                        syncTile.minZoom = 16
+                        game?.mapView?.add(syncTile)
+                    }
                     centerLat = (responseModel.data?.realcsGameMap!.centerLat)!
                     centerLon = (responseModel.data?.realcsGameMap!.centerLon)!
                     center = CLLocationCoordinate2D(latitude: CLLocationDegrees(centerLat), longitude: CLLocationDegrees(centerLon))
@@ -278,20 +307,11 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                     if responseModel.data?.realcsGameTeams != nil{
                         responseModel.data?.realcsGameTeams.forEach({ (model_1) in
                             if model_1.teamId == team_id{
+                                MyTeam = model_1.realcsGamePersonList
                                 model_1.realcsGamePersonList.forEach({ (model_2) in
-                                    if model_2.personId == person_id {
-                                        MyIcon = model_2.realcsUpload?.accesslocation
-                                    }
                                     self.IconArray.append(model_2.realcsUpload!.accesslocation)
                                     self.LatArray.append(CLLocationDegrees(model_2.lat))
                                     self.LonArray.append(CLLocationDegrees(model_2.lon))
-                                    self.TeamIcon.append(model_2.realcsUpload!.accesslocation)
-                                    self.TeamName.append(model_2.personName)
-                                    self.TeamPersonId.append(model_2.personId)
-                                    self.TeamStatus.append(model_2.status)
-                                    self.TeamBoold.append(model_2.blood)
-                                    self.TeamDyingBoold.append(model_2.dyingBlood)
-                                    self.TeamArmor.append(model_2.defence)
                                 })
                             }
                             self.game?.TeamCollection?.reloadData()
@@ -306,10 +326,6 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                 }
             }
             if responseModel.flag == "游戏"{
-                TeamStatus.removeAll()
-                TeamBoold.removeAll()
-                TeamDyingBoold.removeAll()
-                TeamArmor.removeAll()
                 IconArray.removeAll()
                 LatArray.removeAll()
                 LonArray.removeAll()
@@ -407,14 +423,11 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                     }
                     if responseModel.data?.realcsGameTeams != nil{
                         responseModel.data?.realcsGameTeams.forEach({ (model_1) in
+                            MyTeam = model_1.realcsGamePersonList
                             model_1.realcsGamePersonList.forEach({(model_2) in
                                 self.IconArray.append(model_2.realcsUpload!.accesslocation)
                                 self.LatArray.append(CLLocationDegrees(model_2.lat))
                                 self.LonArray.append(CLLocationDegrees(model_2.lon))
-                                self.TeamStatus.append(model_2.status)
-                                self.TeamBoold.append(model_2.blood)
-                                self.TeamDyingBoold.append(model_2.dyingBlood)
-                                self.TeamArmor.append(model_2.defence)
                                 if model_2.personId == person_id{  //自己
                                     if model_2.status == 1 {
                                         self.game?.Blood?.isHidden = false
@@ -423,6 +436,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                                         self.game?.Blood?.isHidden = true
                                         self.game?.DyingBlood?.isHidden = false
                                     }
+                                    self.MyName = model_2.personName
                                     self.connectStatus = model_2.connectStatus
                                     self.MyArmor = model_2.defence
                                     self.MyBlood = model_2.blood
@@ -448,6 +462,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                                             if let url = URL(string: (Equip[2]?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))!){
                                                 game?.GunView?.kf.setImage(with: url)
                                             }
+
                                         } else {
                                             game?.GunView?.image = UIImage(named: "gun.png")
                                         }
@@ -467,7 +482,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                                         }
                                         if Equip.keys.contains(8) {   //背心
                                             if let url = URL(string: (Equip[8]?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))!){
-                                               game?.ClothesView?.kf.setImage(with: url)
+                                                game?.ClothesView?.kf.setImage(with: url)
                                             }
                                         } else {
                                             game?.ClothesView?.image = UIImage(named: "clothes.png")
@@ -485,7 +500,6 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                         })
                         self.game?.TeamCollection?.reloadData()
                     }
-
                     //添加暴露人员
                     if responseModel.data?.exposePersonList != nil{
                         responseModel.data?.exposePersonList.forEach({(model_2) in
@@ -503,9 +517,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                 }
             }
             if responseModel.flag == "战报" {
-                if let responseModel = Model_4.deserialize(from: text) {
-                    ReportArray.append(responseModel.data)
-                }
+                ReportArray.append(responseModel.data)
                 self.game?.TableView3?.reloadData()
             }
             if responseModel.flag == "正在游戏" {
@@ -513,20 +525,13 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
             }
             if responseModel.flag == "游戏结束" {
                 game?.GameStatus?.text = "游戏已结束"
-                TeamStatus.removeAll()
-                TeamBoold.removeAll()
-                TeamDyingBoold.removeAll()
-                TeamArmor.removeAll()
                 Equip.removeAll()
                 if let responseModel = Model_2.deserialize(from: text) {
                     game?.TotalNum?.text = "剩余 \(responseModel.data!.total) 人"
                     if responseModel.data?.realcsGameTeams != nil{
                         responseModel.data?.realcsGameTeams.forEach({ (model_1) in
+                            MyTeam = model_1.realcsGamePersonList
                             model_1.realcsGamePersonList.forEach({(model_2) in
-                                self.TeamStatus.append(model_2.status)
-                                self.TeamBoold.append(model_2.blood)
-                                self.TeamDyingBoold.append(model_2.dyingBlood)
-                                self.TeamArmor.append(model_2.defence)
                                 if model_2.personId == person_id{  //自己
                                     if model_2.status == 1 {
                                         self.game?.Blood?.isHidden = false
@@ -560,6 +565,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
                                             if let url = URL(string: (Equip[2]?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))!){
                                                 game?.GunView?.kf.setImage(with: url)
                                             }
+                                            
                                         } else {
                                             game?.GunView?.image = UIImage(named: "gun.png")
                                         }
@@ -613,42 +619,50 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
 //        print("接收数据:\(data)")
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return TeamIcon.count
+        return MyTeam?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GameCollectionViewCell", for: indexPath) as! GameCollectionViewCell
     
-        cell.NameLabel?.text = TeamName[indexPath.item]
-        if TeamPersonId[indexPath.item] == person_id {
+        cell.NameLabel?.text = MyTeam![indexPath.item].personName
+        if MyTeam?[indexPath.item].personId == person_id {
             cell.NameLabel?.textColor = UIColor.orange
+            cell.layer.borderColor = UIColor.orange.cgColor
+            cell.layer.borderWidth = 1
         }else{
             cell.NameLabel?.textColor = UIColor.white
-        }
-        if let url = URL(string: TeamIcon[indexPath.item]){
-            cell.IconImageView?.kf.setImage(with: ImageResource(downloadURL: url))
+            cell.layer.borderColor = UIColor.clear.cgColor
+            cell.layer.borderWidth = 0
         }
         
-        if TeamStatus[indexPath.item] == 1{   //正常
+        if let url = URL(string: MyTeam![indexPath.item].realcsUpload!.accesslocation){
+            cell.IconImageView?.kf.setImage(with: url, placeholder: UIImage(named: "logo.png"), options: nil, progressBlock: nil, completionHandler: {(image, error, cacheType, imageUrl) in
+                if error == nil{
+                    cell.IconImageView?.image = image
+                }
+            })
+        }
+        
+        if MyTeam?[indexPath.item].status == 1{   //正常
             cell.TeamBlood?.isHidden = false
             cell.TeamDyingBlood?.isHidden = true
             cell.DeadView?.isHidden = true
         }
-        else if TeamStatus[indexPath.item] == 3{   //濒死
+        else if MyTeam?[indexPath.item].status == 3{   //濒死
             cell.TeamBlood?.isHidden = true
             cell.TeamDyingBlood?.isHidden = false
             cell.DeadView?.isHidden = true
         }
-        else if TeamStatus[indexPath.item] == 2{   //死亡
+        else if MyTeam?[indexPath.item].status == 2{   //死亡
             cell.DeadView?.isHidden = false
         }
-        UIView.animate(withDuration: 0.3, animations: {
-            cell.TeamBlood?.frame = CGRect(x: 0, y: 0, width: self.TeamBoold[indexPath.item]*50/100, height: 5)
-            cell.TeamDyingBlood?.frame = CGRect(x: 0, y: 0, width: self.TeamDyingBoold[indexPath.item]*50/100, height: 5)
-            cell.TeamArmor?.frame = CGRect(x: 0, y: 0, width: self.TeamArmor[indexPath.item]*50/100, height: 2)
-        })
+//        UIView.animate(withDuration: 0.3, animations: {
+            cell.TeamBlood?.frame = CGRect(x: 0, y: 0, width: self.MyTeam![indexPath.item].blood*50/100, height: 5)
+            cell.TeamDyingBlood?.frame = CGRect(x: 0, y: 0, width: self.MyTeam![indexPath.item].dyingBlood*50/100, height: 5)
+            cell.TeamArmor?.frame = CGRect(x: 0, y: 0, width: self.MyTeam![indexPath.item].defence*50/100, height: 2)
+//        })
 
         cell.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
         return cell
@@ -656,10 +670,10 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView.isEqual(game?.TableView1) {
-            return Num1
+            return TeamVoiceNum
         }
         if tableView.isEqual(game?.TableView2) {
-            return Num2
+            return WorldVoiceNum
         }
         if tableView.isEqual(game?.TableView3) {
             return ReportArray.count
@@ -685,17 +699,35 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         if cell == nil {
             cell = UITableViewCell(style: .default, reuseIdentifier: "cellID")
         }
-        if tableView.isEqual(game?.TableView1) || tableView.isEqual(game?.TableView2){
+        if tableView.isEqual(game?.TableView1){
             var cell : GameTableViewCell1! = tableView.dequeueReusableCell(withIdentifier: "GameTableViewCell1") as? GameTableViewCell1
             if cell == nil {
                 cell = GameTableViewCell1(style: .default, reuseIdentifier: "GameTableViewCell1")
             }
-            cell.NameLabel?.text = "队员100"
+            cell.NameLabel?.text = TeamVoiceName[indexPath.row]
             cell.SpeechView?.delegate = self
             btn = cell.SpeechView
             
             weak var weakSelf = self
-            weakSelf?.btn.contentURL = UrlArray[0]
+            weakSelf?.btn.contentURL = TeamUrlArray[indexPath.row]
+            weakSelf?.btn.isUserInteractionEnabled = true
+            
+            cell.SpeechView = btn
+            cell.backgroundColor = UIColor.clear
+            cell.selectionStyle = .none
+            return cell
+        }
+        if tableView.isEqual(game?.TableView2){
+            var cell : GameTableViewCell1! = tableView.dequeueReusableCell(withIdentifier: "GameTableViewCell1") as? GameTableViewCell1
+            if cell == nil {
+                cell = GameTableViewCell1(style: .default, reuseIdentifier: "GameTableViewCell1")
+            }
+            cell.NameLabel?.text = WorldVoiceName[indexPath.row]
+            cell.SpeechView?.delegate = self
+            btn = cell.SpeechView
+            
+            weak var weakSelf = self
+            weakSelf?.btn.contentURL = WorldUrlArray[indexPath.row]
             weakSelf?.btn.isUserInteractionEnabled = true
             
             cell.SpeechView = btn
@@ -719,7 +751,7 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
     //gps
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         //获取最新的坐标
-        game?.mapView?.removeAnnotation(location)
+//        game?.mapView?.removeAnnotation(location)
         let currLocation:CLLocation = locations.last!
         Mylon = currLocation.coordinate.longitude
         Mylat = currLocation.coordinate.latitude
@@ -728,9 +760,15 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
         let srctype = BMKLocationCoordinateType.WGS84    //原始坐标系
         let destype = BMKLocationCoordinateType.BMK09LL  //百度坐标系
         let cood: CLLocationCoordinate2D = BMKLocationManager.bmkLocationCoordinateConvert(coodinate, srcType: srctype, desType: destype)
-        location = BMKPointAnnotation()
-        location?.coordinate = cood
-        game?.mapView?.addAnnotation(location!)
+        Mylon = cood.longitude
+        Mylat = cood.latitude
+        let timeInterval: TimeInterval = Date().timeIntervalSince1970
+        let timeStamp = Int(timeInterval)
+        
+        gpsstr = "{\"lon\":\(Mylon!),\"gpsType\":\"phone\",\"time\":\(timeStamp),\"hdop\":\(currLocation.horizontalAccuracy),\"devid\":\"\(packageNo!)\",\"lat_type\":\"N\",\"height\":\(currLocation.altitude),\"state\":1,\"stars\":0,\"lon_type\":\"E\",\"locationTime\":0,\"direction\":\(currLocation.course),\"appType\":0,\"gameid\":\(game_id!),\"height_unit\":\"M\",\"lat\":\(Mylat!)}\r\n"
+        jsonData2 = gpsstr.data(using: String.Encoding.utf8, allowLossyConversion: false)
+        _ = onecode
+
 //        print("经度：\(currLocation.coordinate.longitude)")
 //        //获取纬度
 //        print("纬度：\(currLocation.coordinate.latitude)")
@@ -763,32 +801,18 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
             if annotationView == nil {
                 annotationView = BMKAnnotationView(annotation: annotation, reuseIdentifier: "annotationReuseIndetifier")
             }
-            if annotation.isEqual(location){
-                if cache.isCached(forKey: MyIcon!) {
-                    ImageCache.default.retrieveImage(forKey: MyIcon!, options: nil) { (image, cacheType) in
-                        annotationView?.image = image
+            
+                if ImageCache.default.isCached(forKey: IconArray[i]) == false {
+                    var image : UIImage? = nil
+                    do{
+                        image = UIImage(data: try Data(contentsOf: URL(string: IconArray[i])!))
+                        ImageCache.default.store(image!, forKey: IconArray[i])
+                        annotationView?.image = ImageCache.default.retrieveImageInDiskCache(forKey: IconArray[i])
+                    }catch{
                     }
                 }else{
-                    let image = UIImage(data: try! Data(contentsOf: URL(string: MyIcon!)!))
-                    ImageCache.default.store(image!, forKey: MyIcon!)
-                    ImageCache.default.retrieveImage(forKey: MyIcon!, options: nil) { (image, cacheType) in
-                        annotationView?.image = image
-                    }
+                    annotationView?.image = ImageCache.default.retrieveImageInDiskCache(forKey: IconArray[i])
                 }
-
-            }else{
-                if cache.isCached(forKey: IconArray[i]) {
-                    ImageCache.default.retrieveImage(forKey: IconArray[i], options: nil) { (image, cacheType) in
-                        annotationView?.image = image
-                    }
-                }else{
-                    let image = UIImage(data: try! Data(contentsOf: URL(string: IconArray[i])!))
-                    ImageCache.default.store(image!, forKey: IconArray[i])
-                    ImageCache.default.retrieveImage(forKey: IconArray[i], options: nil) { (image, cacheType) in
-                        annotationView?.image = image
-                    }
-                }
-            }
 
             return annotationView
         }
@@ -813,44 +837,90 @@ class GameViewController: UIViewController,WKUIDelegate,WKNavigationDelegate,UIC
             
             return circleView
         }
+        if (overlay is BMKTileLayer) {
+            let view = BMKTileLayerView(tileLayer: overlay as? BMKTileLayer)
+            return view
+        }
         return nil
     }
     
+    func socket(_ sock: GCDAsyncSocket, didWriteDataWithTag tag: Int) {
+        sock.readData(withTimeout: -1, tag: 0)
+    }
+
     func socket(_ sock: GCDAsyncSocket, didConnectToHost host: String, port: UInt16) -> Void {
         print("connect success")
-        clientSocket.readData(withTimeout: -1, tag: 0)
+        timer_2!.fire()
     }
 
     func socketDidDisconnect(_ sock: GCDAsyncSocket, withError err: Error?) -> Void {
-        print("connect error: \(String(describing: err))")
+        print("connect error: \(String(describing: err!))")
+        do{
+            try sock.connect(toHost: Host!, onPort: 25409)
+        }
+        catch{
+        }
     }
 
     func socket(_ sock: GCDAsyncSocket, didRead data: Data, withTag tag: Int) -> Void {
-        // 1、获取客户端发来的数据，把 NSData 转 NSString
-        let readClientDataString: NSString? = NSString(data: data as Data, encoding: String.Encoding.utf8.rawValue)
-        print("---Data Recv---")
-        print(readClientDataString)
-
-        // 2、主界面UI显示数据
-        DispatchQueue.main.async {
-            let showStr: NSMutableString = NSMutableString()
-            showStr.append(self.msgView.text)
-            showStr.append(readClientDataString! as String)
-            showStr.append("\r\n")
-            self.msgView.text = showStr as String
+        let bytes = [UInt8](data)
+// 1、获取服务端发来的数据，把 NSData 转 NSString
+//        let readClientDataString: NSString? = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+        if bytes.count > 250{
+            //gbk解码
+            let readClientDataString: String? = String(data: data, encoding: String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.GB_18030_2000.rawValue))))
+            if let responseModel = Model_4.deserialize(from: readClientDataString) {
+                if responseModel.DATA?.MSG_CHANNEL == "team"{
+                    TeamVoiceNum += 1
+                    TeamVoiceName.append(responseModel.DATA!.PERSON_NAME)
+                    TeamUrlArray.append(URL(string: responseModel.DATA!.MSG_VOICE)!)
+                    //主线程刷新tableview
+                    DispatchQueue.main.async {
+                        self.game?.TableView1?.reloadData()
+                    }
+                }else if responseModel.DATA?.MSG_CHANNEL == "world"{
+                    WorldVoiceNum += 1
+                    WorldVoiceName.append(responseModel.DATA!.PERSON_NAME)
+                    WorldUrlArray.append(URL(string: responseModel.DATA!.MSG_VOICE)!)
+                    DispatchQueue.main.async {
+                        self.game?.TableView2?.reloadData()
+                    }
+                }
+            }
         }
-
-        print(msgView.text)
-
-        // 3、处理请求，返回数据给客户端OK
-        let serviceStr: NSMutableString = NSMutableString()
-        serviceStr.append("OK")
-        serviceStr.append("\r\n")
-        clientSocket.write(serviceStr.data(using: String.Encoding.utf8.rawValue)!, withTimeout: -1, tag: 0)
-
-        // 4、每次读完数据后，都要调用一次监听数据的方法
-        clientSocket.readData(withTimeout: -1, tag: 0)
+//            print(readClientDataString! as Any)
+    
+        // 2、每次读完数据后，都要调用一次监听数据的方法
+        sock.readData(withTimeout: -1, tag: 0)
     }
-
+    //image旋转任意角度
+//    func getRotationImage(_ image: UIImage?, rotation: CGFloat, point: CGPoint) -> UIImage? {
+//        let num = Int(floor(rotation))
+//        if CGFloat(num) == rotation && num % 360 == 0 {
+//            return image
+//        }
+//        let radius = Double(rotation * .pi / 180)
+//
+//        let rotatedSize: CGSize? = image?.size
+//        // Create the bitmap context
+//        UIGraphicsBeginImageContext(rotatedSize!)
+//        let bitmap = UIGraphicsGetCurrentContext()
+//
+//        // rotated image view
+//        bitmap?.scaleBy(x: 1.0, y: -1.0)
+//
+//        // move to the rotation relative point
+//        bitmap?.translateBy(x: point.x, y: -point.y)
+//
+//        // Rotate the image context
+//        bitmap?.rotate(by: CGFloat(radius))
+//
+//        // Now, draw the rotated/scaled image into the context
+//        bitmap?.draw((image?.cgImage)!, in: CGRect(x: -point.x, y: -(image?.size.height)! + point.y, width: (image?.size.width)!, height: (image?.size.height)!))
+//
+//        let newImage: UIImage? = UIGraphicsGetImageFromCurrentImageContext()
+//        UIGraphicsEndImageContext()
+//        return newImage
+//    }
+    
 }
-

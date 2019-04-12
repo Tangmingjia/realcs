@@ -112,7 +112,8 @@ class ZFJChatInputTool: UIView {
         }
         
         let recorderSeetingsDic = [
-            AVFormatIDKey: NSNumber(value: kAudioFormatLinearPCM),//
+            AVFormatIDKey: NSNumber(value: kAudioFormatMPEG4AAC as UInt32), //aac格式
+//            AVFormatIDKey: NSNumber(value: kAudioFormatLinearPCM),// acf格式
             AVSampleRateKey : 11025.0, //录音器每秒采集的录音样本数
             //AVEncoderBitRateKey : 320000,
             AVNumberOfChannelsKey: 2, //录音的声道数，立体声为双声道
@@ -121,7 +122,8 @@ class ZFJChatInputTool: UIView {
             ] as [String : Any]
         
         //语音地址
-        self.recordUrl = URL(string: NSTemporaryDirectory() + ("\(getTheTimestamp()).caf"))
+//        self.recordUrl = URL(string: NSTemporaryDirectory() + ("\(getTheTimestamp()).acf"))
+        self.recordUrl = URL(string: NSTemporaryDirectory() + ("\(getTheTimestamp()).aac"))
         
         recorder = try! AVAudioRecorder(url: self.recordUrl, settings: recorderSeetingsDic)
         if recorder == nil {
@@ -220,9 +222,11 @@ class ZFJChatInputTool: UIView {
         }else if(endState == 1){
             self.sendURLAction!(self.recordUrl)
         }
-        
-        let noti = Notification(name: Notification.Name("noti"), object: nil, userInfo: ["message":"hi"])
-        NotificationCenter.default.post(noti)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "noti"), object: "\(getTheTimestamp()).caf", userInfo: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: - 改变现实的图片

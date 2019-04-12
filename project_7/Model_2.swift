@@ -52,7 +52,7 @@ class RealcsGamePersonListItem : HandyJSON {
     var lon: CGFloat = 0.0
     var lat: CGFloat = 0.0
     var positionState: Int = 0
-    var direction: Int = 0
+    var direction: Int = 0  //旋转角度
 //    var gpsType: String!
     var delay: Int = 0
     var banGun: Int = 0
@@ -125,6 +125,7 @@ struct RealcsGameMap : HandyJSON {
     var mapName: String!
     var maxZoom: Int = 0
     var minZoom: Int = 0
+    var mapPath: String!
 }
 
 struct RealcsGameCircleBomb : HandyJSON {

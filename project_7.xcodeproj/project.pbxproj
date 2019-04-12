@@ -25,10 +25,8 @@
 		046F28CF22449F5900305CD5 /* ZFJMicrophoneIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 046F28CB22449F5900305CD5 /* ZFJMicrophoneIcon@2x.png */; };
 		046F28E22244C8FB00305CD5 /* ZFJChatInputTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046F28DF2244C8FB00305CD5 /* ZFJChatInputTool.swift */; };
 		046F28E32244C8FB00305CD5 /* ZFJVoiceBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046F28E02244C8FB00305CD5 /* ZFJVoiceBubble.swift */; };
-		046F28E42244C8FB00305CD5 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046F28E12244C8FB00305CD5 /* ListViewController.swift */; };
 		046F28E82244C90F00305CD5 /* ZFJChatInputTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046F28E52244C90F00305CD5 /* ZFJChatInputTool.swift */; };
 		046F28E92244C90F00305CD5 /* ZFJVoiceBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046F28E62244C90F00305CD5 /* ZFJVoiceBubble.swift */; };
-		046F28EA2244C90F00305CD5 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046F28E72244C90F00305CD5 /* ListViewController.swift */; };
 		046F28F12244CDD200305CD5 /* ZFJRevokeIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 046F28EF2244CDD200305CD5 /* ZFJRevokeIcon@2x.png */; };
 		046F28F22244CDD200305CD5 /* ZFJRevokeIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 046F28F02244CDD200305CD5 /* ZFJRevokeIcon@3x.png */; };
 		04A7628B2250BA1A007D3ABF /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04A7628A2250BA1A007D3ABF /* GameView.swift */; };
@@ -41,11 +39,9 @@
 		04AEF895223CC64F000D935E /* LBXPermissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF88D223CC64F000D935E /* LBXPermissions.swift */; };
 		04AEF896223CC64F000D935E /* LBXScanWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF88E223CC64F000D935E /* LBXScanWrapper.swift */; };
 		04AEF89A223CC824000D935E /* GameCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF899223CC824000D935E /* GameCollectionViewCell.swift */; };
-		04AEF89C223CC8D5000D935E /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF89B223CC8D5000D935E /* Host.swift */; };
 		04AEF89E223CCA3C000D935E /* Model_1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF89D223CCA3C000D935E /* Model_1.swift */; };
 		04AEF8A0223CD1FD000D935E /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF89F223CD1FD000D935E /* GameViewController.swift */; };
 		04AEF8A5223CDE78000D935E /* Model_2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AEF8A4223CDE78000D935E /* Model_2.swift */; };
-		04B5E21022438CD600776346 /* TCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B5E20F22438CD600776346 /* TCPClient.m */; };
 		04C088AC224DC45000EBAEBA /* handgun.png in Resources */ = {isa = PBXBuildFile; fileRef = 04C088A7224DC45000EBAEBA /* handgun.png */; };
 		04C088AD224DC45000EBAEBA /* clothes.png in Resources */ = {isa = PBXBuildFile; fileRef = 04C088A8224DC45000EBAEBA /* clothes.png */; };
 		04C088AE224DC45000EBAEBA /* hat.png in Resources */ = {isa = PBXBuildFile; fileRef = 04C088A9224DC45000EBAEBA /* hat.png */; };
@@ -55,6 +51,7 @@
 		04E80015224105DF00CBB9E2 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 04E80013224105DF00CBB9E2 /* logo.png */; };
 		04E80017224106D900CBB9E2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E80016224106D900CBB9E2 /* LoginView.swift */; };
 		04E800192241185D00CBB9E2 /* GameTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E800182241185D00CBB9E2 /* GameTableViewCell.swift */; };
+		04EF025C225AE42000BA69F2 /* BMKLocalSyncTileLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EF025B225AE42000BA69F2 /* BMKLocalSyncTileLayer.swift */; };
 		A7420341612700CDFF0BBC6E /* Pods_project_7.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5297919FD44679C889EAA1F9 /* Pods_project_7.framework */; };
 /* End PBXBuildFile section */
 
@@ -91,10 +88,8 @@
 		046F28CB22449F5900305CD5 /* ZFJMicrophoneIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ZFJMicrophoneIcon@2x.png"; sourceTree = "<group>"; };
 		046F28DF2244C8FB00305CD5 /* ZFJChatInputTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ZFJChatInputTool.swift; path = project_7/ZFJChatInputTool.swift; sourceTree = SOURCE_ROOT; };
 		046F28E02244C8FB00305CD5 /* ZFJVoiceBubble.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ZFJVoiceBubble.swift; path = project_7/ZFJVoiceBubble.swift; sourceTree = SOURCE_ROOT; };
-		046F28E12244C8FB00305CD5 /* ListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ListViewController.swift; path = project_7/ListViewController.swift; sourceTree = SOURCE_ROOT; };
 		046F28E52244C90F00305CD5 /* ZFJChatInputTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZFJChatInputTool.swift; sourceTree = "<group>"; };
 		046F28E62244C90F00305CD5 /* ZFJVoiceBubble.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZFJVoiceBubble.swift; sourceTree = "<group>"; };
-		046F28E72244C90F00305CD5 /* ListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		046F28EF2244CDD200305CD5 /* ZFJRevokeIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ZFJRevokeIcon@2x.png"; sourceTree = "<group>"; };
 		046F28F02244CDD200305CD5 /* ZFJRevokeIcon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ZFJRevokeIcon@3x.png"; sourceTree = "<group>"; };
 		04A7628A2250BA1A007D3ABF /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
@@ -107,12 +102,9 @@
 		04AEF88D223CC64F000D935E /* LBXPermissions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LBXPermissions.swift; sourceTree = "<group>"; };
 		04AEF88E223CC64F000D935E /* LBXScanWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LBXScanWrapper.swift; sourceTree = "<group>"; };
 		04AEF899223CC824000D935E /* GameCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCollectionViewCell.swift; sourceTree = "<group>"; };
-		04AEF89B223CC8D5000D935E /* Host.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Host.swift; sourceTree = "<group>"; };
 		04AEF89D223CCA3C000D935E /* Model_1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model_1.swift; sourceTree = "<group>"; };
 		04AEF89F223CD1FD000D935E /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		04AEF8A4223CDE78000D935E /* Model_2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model_2.swift; sourceTree = "<group>"; };
-		04B5E20E22438CA800776346 /* TCPClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TCPClient.h; sourceTree = "<group>"; };
-		04B5E20F22438CD600776346 /* TCPClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TCPClient.m; sourceTree = "<group>"; };
 		04C088A7224DC45000EBAEBA /* handgun.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = handgun.png; sourceTree = "<group>"; };
 		04C088A8224DC45000EBAEBA /* clothes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clothes.png; sourceTree = "<group>"; };
 		04C088A9224DC45000EBAEBA /* hat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hat.png; sourceTree = "<group>"; };
@@ -122,6 +114,7 @@
 		04E80013224105DF00CBB9E2 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		04E80016224106D900CBB9E2 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		04E800182241185D00CBB9E2 /* GameTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTableViewCell.swift; sourceTree = "<group>"; };
+		04EF025B225AE42000BA69F2 /* BMKLocalSyncTileLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMKLocalSyncTileLayer.swift; sourceTree = "<group>"; };
 		5297919FD44679C889EAA1F9 /* Pods_project_7.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_project_7.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C24F1CD69F9FD704FDF01E44 /* Pods-project_7.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-project_7.debug.xcconfig"; path = "Pods/Target Support Files/Pods-project_7/Pods-project_7.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -159,19 +152,17 @@
 		040589FE223B7CBF00AD720D /* project_7 */ = {
 			isa = PBXGroup;
 			children = (
-				046F28E72244C90F00305CD5 /* ListViewController.swift */,
 				046F28E52244C90F00305CD5 /* ZFJChatInputTool.swift */,
 				046F28E62244C90F00305CD5 /* ZFJVoiceBubble.swift */,
 				046043CD2242711D00CDBB0E /* GCDAsyncSocket.h */,
 				046043CE2242711D00CDBB0E /* GCDAsyncSocket.m */,
-				04B5E20E22438CA800776346 /* TCPClient.h */,
-				04B5E20F22438CD600776346 /* TCPClient.m */,
 				04AEF8A1223CD7B5000D935E /* image */,
 				04AEF886223CC64F000D935E /* Scan */,
 				040589FF223B7CBF00AD720D /* AppDelegate.swift */,
 				04058A01223B7CBF00AD720D /* LoginViewController.swift */,
 				04E80016224106D900CBB9E2 /* LoginView.swift */,
 				04AEF89F223CD1FD000D935E /* GameViewController.swift */,
+				04EF025B225AE42000BA69F2 /* BMKLocalSyncTileLayer.swift */,
 				04A7628A2250BA1A007D3ABF /* GameView.swift */,
 				04AEF899223CC824000D935E /* GameCollectionViewCell.swift */,
 				04E800182241185D00CBB9E2 /* GameTableViewCell.swift */,
@@ -179,7 +170,6 @@
 				04AEF8A4223CDE78000D935E /* Model_2.swift */,
 				046043C42242121500CDBB0E /* Model_3.swift */,
 				046043C62242124B00CDBB0E /* Model_4.swift */,
-				04AEF89B223CC8D5000D935E /* Host.swift */,
 				04058A03223B7CBF00AD720D /* Main.storyboard */,
 				04058A06223B7CC200AD720D /* Assets.xcassets */,
 				04058A08223B7CC200AD720D /* LaunchScreen.storyboard */,
@@ -202,7 +192,6 @@
 		04AEF886223CC64F000D935E /* Scan */ = {
 			isa = PBXGroup;
 			children = (
-				046F28E12244C8FB00305CD5 /* ListViewController.swift */,
 				046F28DF2244C8FB00305CD5 /* ZFJChatInputTool.swift */,
 				046F28E02244C8FB00305CD5 /* ZFJVoiceBubble.swift */,
 				04AEF887223CC64F000D935E /* LBXScanNetAnimation.swift */,
@@ -362,28 +351,24 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-project_7/Pods-project_7-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-project_7/Pods-project_7-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/BlueSocket/Socket.framework",
 				"${BUILT_PRODUCTS_DIR}/HandyJSON/HandyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftSocket/SwiftSocket.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Socket.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/HandyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftSocket.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-project_7/Pods-project_7-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-project_7/Pods-project_7-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		452FB0846E83F2D6EE3B00EB /* [CP] Check Pods Manifest.lock */ = {
@@ -416,7 +401,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-project_7/Pods-project_7-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-project_7/Pods-project_7-resources.sh",
 				"${PODS_ROOT}/BaiduMapKit/BaiduMapKit/BaiduMapAPI_Map.framework/mapapi.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
@@ -427,7 +412,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-project_7/Pods-project_7-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-project_7/Pods-project_7-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -438,13 +423,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				04AEF8A0223CD1FD000D935E /* GameViewController.swift in Sources */,
-				046F28EA2244C90F00305CD5 /* ListViewController.swift in Sources */,
-				04B5E21022438CD600776346 /* TCPClient.m in Sources */,
 				04AEF8A5223CDE78000D935E /* Model_2.swift in Sources */,
 				04AEF894223CC64F000D935E /* LBXScanViewStyle.swift in Sources */,
+				04EF025C225AE42000BA69F2 /* BMKLocalSyncTileLayer.swift in Sources */,
 				046043C72242124B00CDBB0E /* Model_4.swift in Sources */,
 				04A7628B2250BA1A007D3ABF /* GameView.swift in Sources */,
-				046F28E42244C8FB00305CD5 /* ListViewController.swift in Sources */,
 				046F28E92244C90F00305CD5 /* ZFJVoiceBubble.swift in Sources */,
 				046F28E22244C8FB00305CD5 /* ZFJChatInputTool.swift in Sources */,
 				046043CF2242711D00CDBB0E /* GCDAsyncSocket.m in Sources */,
@@ -453,7 +436,6 @@
 				046043C52242121500CDBB0E /* Model_3.swift in Sources */,
 				04AEF895223CC64F000D935E /* LBXPermissions.swift in Sources */,
 				04AEF891223CC64F000D935E /* LBXScanViewController.swift in Sources */,
-				04AEF89C223CC8D5000D935E /* Host.swift in Sources */,
 				046F28E32244C8FB00305CD5 /* ZFJVoiceBubble.swift in Sources */,
 				04058A02223B7CBF00AD720D /* LoginViewController.swift in Sources */,
 				04AEF893223CC64F000D935E /* LBXScanViewController_2.swift in Sources */,
@@ -619,7 +601,7 @@
 					"$(PROJECT_DIR)/Pods/BaiduMap",
 				);
 				INFOPLIST_FILE = project_7/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -628,8 +610,9 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods/BaiduMap/thirdlibs",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "Jim.project-7";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Jim.realcs1.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "project_7/project_7-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -651,7 +634,7 @@
 					"$(PROJECT_DIR)/Pods/BaiduMap",
 				);
 				INFOPLIST_FILE = project_7/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -660,8 +643,9 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Pods/BaiduMap/thirdlibs",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "Jim.project-7";
+				PRODUCT_BUNDLE_IDENTIFIER = com.Jim.realcs1.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "project_7/project_7-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";

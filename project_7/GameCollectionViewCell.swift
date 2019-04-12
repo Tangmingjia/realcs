@@ -46,7 +46,6 @@ class GameCollectionViewCell: UICollectionViewCell {
         self.IconImageView?.frame = CGRect(x: 10, y: 5, width: 30, height: 30)
         self.IconImageView?.layer.cornerRadius = self.IconImageView!.frame.width/2
         self.IconImageView?.layer.masksToBounds = true
-        self.IconImageView?.contentMode = .scaleAspectFill
         
         self.NameLabel?.frame = CGRect(x: 0, y: 40, width: 50, height: 10)
         self.NameLabel?.font = UIFont.systemFont(ofSize: 7)
