@@ -5,6 +5,8 @@ PODS:
   - HandyJSON (5.0.0-beta)
   - Kingfisher (5.3.0)
   - Starscream (3.0.6)
+  - SVProgressHUD (2.2.5)
+  - WechatOpenSDK (1.8.4)
 
 DEPENDENCIES:
   - Alamofire
@@ -13,6 +15,8 @@ DEPENDENCIES:
   - HandyJSON (from `https://github.com/alibaba/HandyJSON.git`, branch `dev_for_swift5.0`)
   - Kingfisher
   - Starscream
+  - SVProgressHUD
+  - WechatOpenSDK
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -21,6 +25,8 @@ SPEC REPOS:
     - BMKLocationKit
     - Kingfisher
     - Starscream
+    - SVProgressHUD
+    - WechatOpenSDK
 
 EXTERNAL SOURCES:
   HandyJSON:
@@ -39,7 +45,9 @@ SPEC CHECKSUMS:
   HandyJSON: b84ac9904050a0897a0802092b7cb8808e0a4e9a
   Kingfisher: 4692c783ffb99e9e2e40a6eb3e518c3b96c6fa8c
   Starscream: ef3ece99d765eeccb67de105bfa143f929026cf5
+  SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
+  WechatOpenSDK: 9b721089507c895d05f997408c30bb6e6f5f9b60
 
-PODFILE CHECKSUM: a28dfc8265939b9fa4b56284369d461b30112233
+PODFILE CHECKSUM: afadf31010a6b707330bdf371deefec6fa895398
 
 COCOAPODS: 1.6.1

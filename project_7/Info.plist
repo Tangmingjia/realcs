@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>realcs1.0</string>
+	<string>realcs</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -32,9 +32,24 @@
 				<string>Prefs</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>weixin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wxefa108f8e01af35b</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>wechat</string>
+		<string>weixin</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -49,7 +64,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>请点击“允许”以允许访问</string>
 	<key>NSCameraUsageDescription</key>
-	<string>请点击“允许”以允许访问</string>
+	<string>是否允许此App使用你的相机？</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>请点击“允许”以允许访问</string>
 	<key>NSHealthUpdateUsageDescription</key>
@@ -63,11 +78,11 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>请点击“允许”以允许访问</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>请点击允许</string>
+	<string>是否允许此App使用你的麦克风？</string>
 	<key>NSMotionUsageDescription</key>
 	<string>请点击“允许”以允许访问</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>请允许访问您的相册</string>
+	<string>请点击“允许”以允许访问您的相册</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>请点击“允许”以允许访问</string>
 	<key>NSRemindersUsageDescription</key>
@@ -84,9 +99,8 @@
 	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

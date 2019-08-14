@@ -12,4 +12,6 @@ target 'project_7' do
 	pod 'BaiduMapKit'
 	pod 'Kingfisher'
 	pod 'BMKLocationKit'
+	pod 'WechatOpenSDK'
+	pod 'SVProgressHUD'
 end

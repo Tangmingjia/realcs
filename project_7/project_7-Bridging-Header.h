@@ -10,3 +10,8 @@
 #import <BaiduMapAPI_Utils/BMKUtilsComponent.h>//引入计算工具所有的头文件
 #import <BaiduMapAPI_Map/BMKMapView.h>//只引入所需的单个头文件
 #import <BMKLocationkit/BMKLocationComponent.h>//定位
+#import "WXApi.h"//微信
+#import <WechatAuthSDK.h> //微信扫码
+#import <CommonCrypto/CommonHMAC.h> // sha1加密
+#import "WHWeatherView.h"
+#import "WHWeatherHeader.h"
