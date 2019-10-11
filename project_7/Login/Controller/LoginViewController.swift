@@ -37,7 +37,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     var authSDK = WechatAuthSDK()
     var Array : Array = [String]()
     var HostName : String?
-    var HostDictionary : Dictionary = ["成都":"118.24.90.156","漳州":"212.64.29.15","合肥":"129.211.8.106","丽水":"118.25.5.234","岳阳":"129.211.13.49","信阳":"118.25.151.128","遵义":"212.64.14.53","惠州":"111.231.108.101","跳马镇":"118.25.172.69","湘潭":"118.25.97.133","泰州":"212.64.4.119","上海-松江":"111.231.74.211","上海-宝山":"118.25.51.43","温州":"118.25.96.108","嘉兴":"112.124.202.110","德清":"111.231.118.148","红花岗":"118.126.114.23","安化":"148.70.207.211","丽江":"111.231.205.126","汕头":"39.108.229.218","本地":"192.168.31.67","惠州欧美城":"39.108.175.226","长沙自用":"47.98.202.211","河源":"119.23.234.184","湖南邵阳":"47.98.189.203","广州":"112.74.54.134","武汉汉阳":"47.97.157.41","贵州安顺":"47.110.152.114","江西抚州":"121.40.85.152","泉州":"47.111.139.19"]
+    var HostDictionary : Dictionary = ["成都":"118.24.90.156","漳州":"212.64.29.15","合肥":"129.211.8.106","丽水":"118.25.5.234","岳阳":"129.211.13.49","信阳":"118.25.151.128","遵义":"212.64.14.53","惠州":"111.231.108.101","跳马镇":"118.25.172.69","湘潭":"118.25.97.133","泰州":"212.64.4.119","上海-松江":"111.231.74.211","上海-宝山":"118.25.51.43","温州":"118.25.96.108","嘉兴测试":"112.124.202.110","德清":"111.231.118.148","红花岗":"118.126.114.23","安化":"148.70.207.211","丽江":"111.231.205.126","汕头":"39.108.229.218","本地":"192.168.31.67","惠州欧美城":"39.108.175.226","长沙自用":"47.98.202.211","河源":"119.23.234.184","湖南邵阳":"47.98.189.203","广州":"112.74.54.134","武汉汉阳":"47.97.157.41","贵州安顺":"47.110.152.114","江西抚州":"121.40.85.152","泉州":"47.111.139.19","大连":"121.40.78.175","合肥庐阳":"47.111.181.23","嘉兴镭动":"212.64.32.148"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +48,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         
         Login?.HostField?.delegate = self
         Login?.packageField?.delegate = self
-        Login?.oidField?.delegate = self
+//        Login?.oidField?.delegate = self
         Login?.LoginButton?.addTarget(self, action: #selector(login), for: .touchUpInside)
         Login?.ScanButton?.addTarget(self, action: #selector(scan), for: .touchUpInside)
         Login?.picker?.delegate = self
@@ -58,11 +58,9 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
         Login?.wechatButton?.addTarget(self, action: #selector(wechatClick), for: .touchUpInside)
         Login?.HostField?.text = UserDefaults.standard.object(forKey: "Host") as? String
         Login?.packageField?.text = UserDefaults.standard.object(forKey: "packageNo") as? String
-        Login?.oidField?.text = UserDefaults.standard.object(forKey: "oId") as? String
-        
+//        Login?.oidField?.text = UserDefaults.standard.object(forKey: "oId") as? String
         NotificationCenter.default.addObserver(self,selector: #selector(WXLoginSuccess(notification:)),name: NSNotification.Name(rawValue: "WXLoginSuccessNotification"),object: nil)
         authSDK.delegate = self
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -80,6 +78,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     //登录方法
     @objc func login(){
         hud_5()
+        oId = "2"
         if Login?.HostField?.text != nil{
             HostName = Login?.HostField?.text
             UserDefaults.standard.set(HostName, forKey: "Host")
@@ -89,10 +88,10 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
             packageNo = Login?.packageField?.text
             UserDefaults.standard.set(packageNo, forKey: "packageNo")
         }
-        if Login?.oidField?.text != nil{
-            oId = Login?.oidField?.text
-            UserDefaults.standard.set(oId, forKey: "oId")
-        }
+//        if Login?.oidField?.text != nil{
+//            oId = Login?.oidField?.text
+//            UserDefaults.standard.set(oId, forKey: "oId")
+//        }
         if Host != nil && packageNo != nil && oId != nil && Host != "" && packageNo != "" && oId != ""{
             Alamofire.request("http://\(Host!):8998/package/getPersonByPackageNo", method: .get, parameters: ["packageNo": packageNo!, "oId": Int(oId!), "unionid": unionid, "hosturl": Host!]).responseString { (response) in
                 if response.result.isSuccess {
@@ -233,7 +232,7 @@ class LoginViewController: UIViewController,LBXScanViewControllerDelegate,UINavi
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         Login?.HostField?.resignFirstResponder()
         Login?.packageField?.resignFirstResponder()
-        Login?.oidField?.resignFirstResponder()
+//        Login?.oidField?.resignFirstResponder()
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

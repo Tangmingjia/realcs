@@ -154,10 +154,10 @@ class GameView : UIView {
         self.addSubview(dyingView!)
         
         self.dyingImage = UIImageView()
-        self.dyingView?.addSubview(dyingImage!)
+        self.addSubview(dyingImage!)
         
         self.dyingLabel = UILabel()
-        self.dyingImage?.addSubview(dyingLabel!)
+        self.dyingView?.addSubview(dyingLabel!)
 
         self.StartLabel = UILabel()
         self.addSubview(StartLabel!)
@@ -305,6 +305,7 @@ class GameView : UIView {
         
         self.dyingImage?.frame = CGRect(x: 0, y: 0, width: ScreenSize.width, height: ScreenSize.height)
         animation(ImageName: "binsi", ImageView: dyingImage!)
+        self.dyingImage?.isHidden = true
         
         self.dyingLabel?.frame = CGRect(x: ScreenSize.width/2-250, y: ScreenSize.height/2-68, width: 500, height: 136)
         self.dyingLabel?.backgroundColor = UIColor(patternImage: UIImage(named: "saveNumBG.png")!)
@@ -328,7 +329,7 @@ class GameView : UIView {
         
         //隐藏手势
         let tap = UITapGestureRecognizer(target: self, action: #selector(tap(_:)))
-        tap.numberOfTapsRequired = 5   //点击次数
+        tap.numberOfTapsRequired = 3   //点击次数
         tap.numberOfTouchesRequired = 3  //所需手指数
         self.addGestureRecognizer(tap)
     }

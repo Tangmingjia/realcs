@@ -8,20 +8,21 @@
 
 import UIKit
 import AVFoundation
-
+import SVProgressHUD
 let KZFJChatInputTool_HEI : CGFloat = 49
 let KZFJChatInputTool_Space : CGFloat = 10  //控件距离两边的距离
 let KBothSidesBtn_WID : CGFloat = 36        //左右两边按钮的宽高
 let KCallViewWID : CGFloat = 166
-
+var isAllowed = false  //是否开启语音权限
+var endState: Int = 0  //是否发送
 typealias sendOutBtnClick = (_ voiceUrl: URL) -> Void
 
 class ZFJChatInputTool: UIView {
     var sendURLAction: sendOutBtnClick?
-
+    
     //录音存放的路径
     var recordUrl: URL!
-
+    
     //语音界面
     lazy var recordingView: UIView = {
         let redView = UIView()
@@ -30,7 +31,7 @@ class ZFJChatInputTool: UIView {
         redView.isUserInteractionEnabled = true
         return redView
     }()
-
+    
     var recorder: AVAudioRecorder!
     var voiceShowLab: UILabel = {
         let voiceLab = UILabel()
@@ -72,7 +73,7 @@ class ZFJChatInputTool: UIView {
     
     var timer: Timer?
     var tempPoint = CGPoint.zero
-    var endState: Int = 0
+    
     
     
     override init(frame:CGRect) {
@@ -91,26 +92,26 @@ class ZFJChatInputTool: UIView {
         //初始化录音器
         let session:AVAudioSession = AVAudioSession.sharedInstance()
         //设置录音类型
-//        try! session.setCategory(AVAudioSession.Category.playback)
+        //        try! session.setCategory(AVAudioSession.Category.playback)
         try! session.setCategory(AVAudioSession.Category.playback, mode: .default, options: [])
         //首先要判断是否允许访问麦克风
-        var isAllowed = false
+        
         session.requestRecordPermission { (allowed) in
             if !allowed{
-                let alertView = UIAlertView(title: "无法访问您的麦克风" , message: "请到设置 -> 隐私 -> 麦克风 ，打开访问权限", delegate: nil, cancelButtonTitle: "取消", otherButtonTitles: "好的")
-                alertView.show()
+//                let alertView = UIAlertView(title: "无法访问您的麦克风" , message: "请到设置 -> 隐私 -> 麦克风 ，打开访问权限", delegate: nil, cancelButtonTitle: "取消", otherButtonTitles: "好的")
+//                alertView.show()
                 isAllowed = false
             }else{
                 isAllowed = true
             }
         }
-        if isAllowed == false{
-            return //如果没有访问权限 返回
-        }
+        //        if isAllowed == false{
+        //            return //如果没有访问权限 返回
+        //        }
         
         let recorderSeetingsDic = [
             AVFormatIDKey: NSNumber(value: kAudioFormatMPEG4AAC as UInt32), //aac格式
-//            AVFormatIDKey: NSNumber(value: kAudioFormatLinearPCM),// acf格式
+            //            AVFormatIDKey: NSNumber(value: kAudioFormatLinearPCM),// acf格式
             AVSampleRateKey : 11025.0, //录音器每秒采集的录音样本数
             //AVEncoderBitRateKey : 320000,
             AVNumberOfChannelsKey: 2, //录音的声道数，立体声为双声道
@@ -119,7 +120,7 @@ class ZFJChatInputTool: UIView {
             ] as [String : Any]
         
         //语音地址
-//        self.recordUrl = URL(string: NSTemporaryDirectory() + ("\(getTheTimestamp()).acf"))
+        //        self.recordUrl = URL(string: NSTemporaryDirectory() + ("\(getTheTimestamp()).acf"))
         self.recordUrl = URL(string: NSTemporaryDirectory() + ("\(getTheTimestamp()).aac"))
         
         recorder = try! AVAudioRecorder(url: self.recordUrl, settings: recorderSeetingsDic)
@@ -134,9 +135,9 @@ class ZFJChatInputTool: UIView {
         self.recordingView.isHidden = false
         
         let underPressView = UIButton(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
-//        underPressView.backgroundColor = UIColor(red: 0 / 255.0, green: 0 / 255.0, blue: 0 / 255.0, alpha: 0.5)
+        //        underPressView.backgroundColor = UIColor(red: 0 / 255.0, green: 0 / 255.0, blue: 0 / 255.0, alpha: 0.5)
         underPressView.setImage(UIImage(named: "speech.png"), for: .normal)
-//        underPressView.backgroundColor = UIColor.red
+        //        underPressView.backgroundColor = UIColor.red
         underPressView.layer.cornerRadius = underPressView.frame.width/2
         self.recordingView.addSubview(underPressView)
         
@@ -161,62 +162,71 @@ class ZFJChatInputTool: UIView {
     }
     // MARK: - 长按开始录音 手势判断
     @objc func longPress(_ press: UILongPressGestureRecognizer) {
-        let session:AVAudioSession = AVAudioSession.sharedInstance()
-//        try! session.setCategory(AVAudioSession.Category.playAndRecord)
-        try! session.setCategory(AVAudioSession.Category.playAndRecord, mode: .default, options: [])
-        if(press.state == UIGestureRecognizer.State.began){
-            self.callView.isHidden = false
-            recorder!.prepareToRecord()//准备录音
-            recorder!.record()//开始录音
-            //启动定时器，定时更新录音音量
-            self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self,
-                                              selector: #selector(changeImage),
-                                              userInfo: nil, repeats: true)
-        }else if(press.state == UIGestureRecognizer.State.changed){
-            //录音正在进行
-            let point: CGPoint = press.location(in: self)
-            if point.y < tempPoint.y - 10 {
-                endState = 0
-                self.yinjieBtn.isHidden = true
-                self.voiceShowLab.text = "松开手指,取消发送"
-                self.imgView.image = UIImage(named: "ZFJRevokeIcon")
-                if !point.equalTo(tempPoint) && point.y < tempPoint.y - 8 {
-                    tempPoint = point
+        if isAllowed == true {
+            let session:AVAudioSession = AVAudioSession.sharedInstance()
+            //        try! session.setCategory(AVAudioSession.Category.playAndRecord)
+            try! session.setCategory(AVAudioSession.Category.playAndRecord, mode: .default, options: [])
+            if(press.state == UIGestureRecognizer.State.began){
+                self.callView.isHidden = false
+                recorder!.prepareToRecord()//准备录音
+                recorder!.record()//开始录音
+                //启动定时器，定时更新录音音量
+                self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self,
+                                                  selector: #selector(changeImage),
+                                                  userInfo: nil, repeats: true)
+            }else if(press.state == UIGestureRecognizer.State.changed){
+                //录音正在进行
+                let point: CGPoint = press.location(in: self)
+                if point.y < tempPoint.y - 10 {
+                    endState = 0
+                    self.yinjieBtn.isHidden = true
+                    self.voiceShowLab.text = "松开手指,取消发送"
+                    self.imgView.image = UIImage(named: "ZFJRevokeIcon")
+                    if !point.equalTo(tempPoint) && point.y < tempPoint.y - 8 {
+                        tempPoint = point
+                    }
                 }
-            }
-            else if point.y > tempPoint.y + 10 {
-                endState = 1
-                self.yinjieBtn.isHidden = false
-                self.voiceShowLab.text = "手指上滑,取消发送"
-                self.imgView.image = UIImage(named: "ZFJMicrophoneIcon")
-                if !point.equalTo(tempPoint) && point.y > tempPoint.y + 8 {
-                    tempPoint = point
+                else if point.y > tempPoint.y + 10 {
+                    endState = 1
+                    self.yinjieBtn.isHidden = false
+                    self.voiceShowLab.text = "手指上滑,取消发送"
+                    self.imgView.image = UIImage(named: "ZFJMicrophoneIcon")
+                    if !point.equalTo(tempPoint) && point.y > tempPoint.y + 8 {
+                        tempPoint = point
+                    }
                 }
+            }else{
+                //取消或者结束录音
+                self.callView.isHidden = true
+                recorder?.stop()
+                //recorder = nil
+                timer?.invalidate()
+                timer = nil
+                endPress()
             }
         }else{
-            //取消或者结束录音
-            self.callView.isHidden = true
-            recorder?.stop()
-            //recorder = nil
-            timer?.invalidate()
-            timer = nil
-            endPress()
+            SVProgressHUD.showError(withStatus: "没有麦克风权限")
         }
+        
     }
     // MARK: - 结束录音
     func endPress(){
         let session:AVAudioSession = AVAudioSession.sharedInstance()
-//        try! session.setCategory(AVAudioSession.Category.playback)
+        //        try! session.setCategory(AVAudioSession.Category.playback)
         try! session.setCategory(AVAudioSession.Category.playback, mode: .default, options: [])
-
+        
         if(endState == 0){
             //取消发送
-            endState = 1
+//            endState = 1
             self.yinjieBtn.isHidden = false
             self.voiceShowLab.text = "手指上滑,取消发送"
             self.imgView.image = UIImage(named: "ZFJMicrophoneIcon")
         }else if(endState == 1){
-            self.sendURLAction!(self.recordUrl)
+            if self.recordUrl != nil {
+                self.sendURLAction!(self.recordUrl)
+            }else{
+                SVProgressHUD.showError(withStatus: "发送失败")
+            }
         }
         NotificationCenter.default.post(name: Notification.Name(rawValue: "noti"), object: "\(getTheTimestamp()).caf", userInfo: nil)
     }

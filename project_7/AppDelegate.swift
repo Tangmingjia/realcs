@@ -50,7 +50,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate ,BMKGeneralDelegate, WXApi
         self.window?.rootViewController = UINavigationController(rootViewController: LoginViewController())
         self.window?.backgroundColor = UIColor.black
         self.window?.makeKeyAndVisible()
-        
+        //记录开关状态
+        UserDefaults.standard.set(true, forKey: "switchState")
         mapManager = BMKMapManager()
         mapManager?.start("8vOxkjPGbmRL6TciLGvvL2MGRqZYToYH",generalDelegate: self)
         // 如果要关注网络及授权验证事件，请设定generalDelegate参数

@@ -17,6 +17,7 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
     let gps = CLLocationManager()        //gps
     var websocket : WebSocket?           //websocket
     var gameRule : Int?
+    var LastBlood : Int = 0
     var MyName : String?
     var MyLat: CLLocationDegrees?
     var MyLon: CLLocationDegrees?
@@ -218,9 +219,12 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
         game?.bag?.addGestureRecognizer(UITapGestureRecognizer(target:self, action:#selector(handleTap_2(sender:))))
         game?.results?.teamResultsTableView?.delegate = self
         game?.results?.teamResultsTableView?.dataSource = self
-        game?.Speech?.sendURLAction = {(_ voiceUrl: URL) -> Void in
-            self.url = URL(fileURLWithPath: voiceUrl.absoluteString)
+        if isAllowed == true {
+            game?.Speech?.sendURLAction = {(_ voiceUrl: URL) -> Void in
+                self.url = URL(fileURLWithPath: voiceUrl.absoluteString)
+            }
         }
+        
         game?.BagButton?.addTarget(self, action: #selector(openbag), for: .touchUpInside)
         game?.operation?.useButton?.addTarget(self, action: #selector(useItem), for: .touchUpInside)
         game?.operation?.dropButton?.addTarget(self, action: #selector(dropItem), for: .touchUpInside)
@@ -384,6 +388,7 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
             Alamofire.request("http://\(Host!):8080/apps/addBlood", method: .get, parameters: ["gameId": game_id!, "personId": person_id!, "equipNo": bagItemNo[ItemRow!][0]]).responseString { (response) in
                 if response.result.isSuccess {
                     if let jsonString = response.result.value {
+//                        print(jsonString)
                         let msg = self.stringValueDic(jsonString)
                         if (msg?.keys.contains("100001"))!{
                             SVProgressHUD.showError(withStatus: "\((msg!["100001"])!)")
@@ -682,6 +687,9 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
                                         }
                                     }
                                     if model_1.personId == person_id{  //自己
+                                        self.game?.my?.MyName?.text = model_1.personName
+                                        self.game?.bag?.IconView?.kf.setImage(with: URL(string: model_1.realcsUpload!.accesslocation!.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!), placeholder: UIImage(named: "logo.png"))
+                                        self.game?.bag?.nickName?.text = model_1.personName
                                         if model_1.airdropEntityList != nil && model_1.airdropEntityList.count != 0 {  //附近物品
                                             model_1.airdropEntityList.forEach({(model_2) in
                                                 model_2.airdropEquipList.forEach({(model_3) in
@@ -706,6 +714,12 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
                                         self.game?.bag?.myArmor?.text = "护甲：\(model_1.defence)"
                                         self.game?.bag?.KillNum?.text = "击杀：\(model_1.killNum)"
                                         self.game?.bag?.Damage?.text = "伤害：\(model_1.damage)"
+                                        if model_1.blood < self.LastBlood {
+                                            self.game?.dyingImage?.isHidden = false
+                                        }else{
+                                            self.game?.dyingImage?.isHidden = true
+                                        }
+                                        self.LastBlood = model_1.blood
                                         self.game?.my?.Blood?.frame.size = CGSize(width: model_1.blood*205/100, height: 6)
                                         self.game?.my?.DyingBlood?.frame.size = CGSize(width: model_1.dyingBlood*205/100, height: 6)
                                         self.game?.my?.Armor?.frame.size = CGSize(width: model_1.defence*175/100, height: 6)
@@ -814,6 +828,11 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     //更新team数据
     func freshData(){
+        if isContinue == true {
+            if !websocket!.isConnected {
+                websocket?.connect()
+            }
+        }
         if TeamdataSources.count > 0 {
             for i in 0..<TeamdataSources.count {
                 TeamdataSources[i].TeamName = MyTeamName[i]
@@ -836,6 +855,10 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
 //                    print(jsonString)
                     if let responseModel = ResultsModel.deserialize(from: jsonString) {
                         if responseModel.data != nil {
+                            self.TeamDamage.removeAll()
+                            self.TeamKill.removeAll()
+                            self.TeamSurvival.removeAll()
+                            self.TeamDead.removeAll()
                             responseModel.data?.recordList?.forEach({(model) in
                                 self.TeamDamage.append(model.damage)
                                 self.TeamKill.append(model.killNum)
@@ -891,25 +914,27 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
             teamorworld = "world"
         }
         let name = n.object as! String
-        if url != nil {
-            Alamofire.upload(multipartFormData: {(Formdata) in
-                Formdata.append(self.url!, withName: "file", fileName: name, mimeType: "caf")
-            }, to: "http://\(Host!):8998/voice/uploadVoice", encodingCompletion: {(encodingResult) in
-                switch encodingResult {
-                case .success(let upload, _, _):
-                    upload.responseJSON(completionHandler: { (response) in
-                        let str = String(data:response.data!, encoding: String.Encoding.utf8)!
-                        if let responseModel = flagModel.deserialize(from: str){
-                            self.caf = responseModel.data
-                            self.cafstr = "{\"ACTION\":\"phone-send-msg\",\"DATA\":{\"PERSON_NAME\":\"\(self.MyName!)\",\"MSG_TYPE\":\"MSG_VOICE\",\"MSG_VOICE\":\"\(self.caf!)\",\"GAME_ID\":\(game_id!),\"PACKAGE_ID\":\"\(packageNo!)\",\"TEAM_ID\":\(team_id!),\"MSG_CHANNEL\":\"\(self.teamorworld!)\"},\"REQUEST_ID\":\"\(UIDevice.current.identifierForVendor!.uuidString)\"}\r\n"
-                            self.msgjsonData = self.cafstr.data(using: String.Encoding.utf8, allowLossyConversion: false)
-                            self.sendmsg()
-                        }
-                    })
-                case .failure(let error):
-                    print(error)
-                }
-            })
+        if url != nil{ //判断是否有语音的路径
+            if endState == 1 { //判断是否需要发送
+                Alamofire.upload(multipartFormData: {(Formdata) in
+                    Formdata.append(self.url!, withName: "file", fileName: name, mimeType: "caf")
+                }, to: "http://\(Host!):8998/voice/uploadVoice", encodingCompletion: {(encodingResult) in
+                    switch encodingResult {
+                    case .success(let upload, _, _):
+                        upload.responseJSON(completionHandler: { (response) in
+                            let str = String(data:response.data!, encoding: String.Encoding.utf8)!
+                            if let responseModel = flagModel.deserialize(from: str){
+                                self.caf = responseModel.data
+                                self.cafstr = "{\"ACTION\":\"phone-send-msg\",\"DATA\":{\"PERSON_NAME\":\"\(self.MyName!)\",\"MSG_TYPE\":\"MSG_VOICE\",\"MSG_VOICE\":\"\(self.caf!)\",\"GAME_ID\":\(game_id!),\"PACKAGE_ID\":\"\(packageNo!)\",\"TEAM_ID\":\(team_id!),\"MSG_CHANNEL\":\"\(self.teamorworld!)\"},\"REQUEST_ID\":\"\(UIDevice.current.identifierForVendor!.uuidString)\"}\r\n"
+                                self.msgjsonData = self.cafstr.data(using: String.Encoding.utf8, allowLossyConversion: false)
+                                self.sendmsg()
+                            }
+                        })
+                    case .failure(let error):
+                        print(error)
+                    }
+                })
+            }
         }else{
             SVProgressHUD.showError(withStatus: "发送失败")
         }
@@ -958,28 +983,23 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
     }
     
     func msgchange2(sender: Int){
-        switch sender {
-        case 0:
+        if sender == 0{   //队伍
             game?.talkbtn?.Button1?.isSelected = true
             game?.talkbtn?.Button2?.isSelected = false
             game?.talkbtn?.Button3?.isSelected = false
             game?.talkbtn?.SelectBtn = game?.talkbtn?.Button1
-            game?.talk?.ScrollView?.contentOffset.x = CGFloat(sender * 150)
-        case 1:
+        }else if sender == 1{  //世界
             game?.talkbtn?.Button1?.isSelected = false
             game?.talkbtn?.Button2?.isSelected = true
             game?.talkbtn?.Button3?.isSelected = false
             game?.talkbtn?.SelectBtn = game?.talkbtn?.Button2
-            game?.talk?.ScrollView?.contentOffset.x = CGFloat(sender * 150)
-        case 2:
+        }else if sender == 2{  //系统
             game?.talkbtn?.Button1?.isSelected = false
             game?.talkbtn?.Button2?.isSelected = false
             game?.talkbtn?.Button3?.isSelected = true
             game?.talkbtn?.SelectBtn = game?.talkbtn?.Button3
-            game?.talk?.ScrollView?.contentOffset.x = CGFloat(sender * 150)
-        default:
-            break
         }
+        game?.talk?.ScrollView?.contentOffset.x = CGFloat(sender * 150)
     }
     
     func isshield(sender: Int){
@@ -1001,6 +1021,7 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
         }else if sender == 2 {  //死亡
             game?.deadImage?.isHidden = false
             game?.dyingView?.isHidden = true
+            game?.dyingImage?.isHidden = true
         }else if sender == 3 {  //濒死
             game?.deadImage?.isHidden = true
             game?.my?.Blood?.isHidden = true
@@ -1008,6 +1029,7 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
             game?.my?.DyingBlood?.isHidden = false
             game?.my?.DyingBlood_2?.isHidden = false
             game?.dyingView?.isHidden = false
+            game?.dyingImage?.isHidden = false
         }
     }
     
@@ -1051,6 +1073,8 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
                 MyTeamArmor.removeAll()
                 MyTeamStatus.removeAll()
                 MyTeamPersonId.removeAll()
+                TeamIcon.removeAll()
+                TeamName.removeAll()
                 Equip.removeAll()
                 TeamdataSources.removeAll()
                 if let responseModel = firstModel.deserialize(from: text) {
@@ -1102,6 +1126,7 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
                                     }
                                     if model_2.personId == person_id{  //自己
                                         self.MyName = model_2.personName
+                                        self.LastBlood = model_2.blood
                                         self.game?.my?.MyName?.text = model_2.personName
                                         self.game?.bag?.IconView?.kf.setImage(with: URL(string: model_2.realcsUpload!.accesslocation!.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!), placeholder: UIImage(named: "logo.png"))
                                         self.game?.bag?.nickName?.text = model_2.personName
@@ -1430,10 +1455,6 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
             cell.itemImage?.kf.setImage(with: URL(string: bagItemImage[indexPath.row].addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!))
             cell.itemName?.text = bagItemName[indexPath.row]
             cell.itemNum?.text = "X\(bagItemNum[indexPath.row])"
-//            cell.useButton?.tag = indexPath.row
-//            cell.dropButton?.tag = indexPath.row
-//            cell.useButton?.addTarget(self, action: #selector(useItem(sender: )), for: .touchUpInside)
-//            cell.dropButton?.addTarget(self, action: #selector(dropItem(sender: )), for: .touchUpInside)
             cell.backgroundColor = UIColor.clear
             cell.selectionStyle = .none
             return cell
@@ -1457,12 +1478,8 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
             }
             cell.Icon?.kf.setImage(with: URL(string: TeamIcon[indexPath.row].addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!))
             cell.Name?.text = TeamName[indexPath.row]
-            if TeamDamage.count != 0 && TeamDamage.count >= indexPath.row{
-                cell.Damage?.text = "\(TeamDamage[indexPath.row])"
-            }
-            if TeamKill.count != 0 && TeamKill.count >= indexPath.row{
-                cell.Kill?.text = "\(TeamKill[indexPath.row])"
-            }
+            cell.Damage?.text = "\(TeamDamage[indexPath.row])"
+            cell.Kill?.text = "\(TeamKill[indexPath.row])"
             if gameRule == 1 {
                 cell.Survival?.isHidden = false
                 cell.dead?.isHidden = true
@@ -1470,15 +1487,11 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
                 cell.Survival?.isHidden = true
                 cell.dead?.isHidden = false
             }
-            if TeamSurvival.count != 0 && TeamSurvival.count >= indexPath.row{
-                self.TeamSurvival_h = Int(floor(Double(self.TeamSurvival[indexPath.row]/3600000)))
-                self.TeamSurvival_m = Int(floor(Double((self.TeamSurvival[indexPath.row]%3600000)/60000)))
-                self.TeamSurvival_s = ((self.TeamSurvival[indexPath.row]%3600000)%60000)/1000
-                cell.Survival?.text = String(format:"%02d",self.TeamSurvival_h!)+":"+String(format:"%02d",self.TeamSurvival_m!)+":"+String(format:"%02d",self.TeamSurvival_s!)
-            }
-            if TeamDead.count != 0 && TeamDead.count >= indexPath.row{
-                cell.dead?.text = "\(TeamDead[indexPath.row])"
-            }
+            self.TeamSurvival_h = Int(floor(Double(self.TeamSurvival[indexPath.row]/3600000)))
+            self.TeamSurvival_m = Int(floor(Double((self.TeamSurvival[indexPath.row]%3600000)/60000)))
+            self.TeamSurvival_s = ((self.TeamSurvival[indexPath.row]%3600000)%60000)/1000
+            cell.Survival?.text = String(format:"%02d",self.TeamSurvival_h!)+":"+String(format:"%02d",self.TeamSurvival_m!)+":"+String(format:"%02d",self.TeamSurvival_s!)
+            cell.dead?.text = "\(TeamDead[indexPath.row])"
             cell.backgroundColor = UIColor.clear
             cell.selectionStyle = .none
             return cell
@@ -1514,6 +1527,7 @@ class GameViewController: UIViewController,UICollectionViewDelegate,UICollection
             Alamofire.request("http://\(Host!):8080/apps/addEquip", method: .get, parameters: ["gameId": game_id!, "personId": person_id!, "airdropId": nearItemId[indexPath.row], "equipNos": NoStr]).responseString { (response) in
                 if response.result.isSuccess {
                     if let jsonString = response.result.value {
+//                        print(jsonString)
                         let msg = self.stringValueDic(jsonString)
                         if (msg?.keys.contains("100001"))!{
                             SVProgressHUD.showError(withStatus: "\((msg!["100001"])!)")

@@ -14,8 +14,8 @@ class GameCollectionViewCell: UICollectionViewCell,TeamModelDelegate {
             myStatus = model?.myStatus
             TeamName?.text = model!.TeamName
             TeamIcon?.kf.setImage(with: URL(string: (model!.TeamIcon.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)), placeholder: UIImage(named: "logo.png"))
-            TeamKillView?.text = "击杀：\(model?.TeamKill)"
-            TeamDamageView?.text = "伤害：\(model?.TeamDamage)"
+            TeamKillView?.text = "击杀：\(model!.TeamKill)"
+            TeamDamageView?.text = "伤害：\(model!.TeamDamage)"
             model?.delegate = self
         }
     }
@@ -211,7 +211,7 @@ class GameCollectionViewCell: UICollectionViewCell,TeamModelDelegate {
             saveButton?.isHidden = true
         }
         TeamName?.text = Model.TeamName
-        TeamIcon?.kf.setImage(with: URL(string: (model!.TeamIcon.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)), placeholder: UIImage(named: "logo.png"))
+        TeamIcon?.kf.setImage(with: URL(string: (Model.TeamIcon.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)), placeholder: UIImage(named: "logo.png"))
         TeamBlood?.frame.size.width = CGFloat(Model.TeamBlood*115/100)
         TeamDyingBlood?.frame.size.width = CGFloat(Model.TeamDyingBlood*115/100)
         TeamArmor?.frame.size.width = CGFloat(Model.TeamArmor*100/100)

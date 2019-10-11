@@ -44,11 +44,15 @@ class Map : UIView {
         self.mapView?.minZoomLevel = 18
         self.mapView?.maxZoomLevel = 21
         //        self.mapView?.showMapScaleBar = true    //比例尺
-        self.mapView?.isScrollEnabled = false  //禁止拖拽
+        if mapType == BMKUserTrackingModeFollowWithHeading {
+            self.mapView?.isScrollEnabled = false  //罗盘模式禁止拖拽
+        }else{
+            self.mapView?.isScrollEnabled = true   //非罗盘模式允许拖拽
+        }
         self.mapView?.showsUserLocation = true  //用户定位
 //        self.mapView?.isRotateEnabled = false  //禁止旋转
 //        self.mapView?.rotation = -90       //逆时针旋转90度
-        self.mapView?.userTrackingMode = BMKUserTrackingModeFollowWithHeading   //罗盘模式
+        self.mapView?.userTrackingMode = mapType   //罗盘模式
 //        self.mapView?.mapScaleBarPosition = CGPoint(x: ScreenSize.width-92, y: 50)
         self.mapView?.compassPosition = CGPoint(x: ScreenSize.width, y: 0)
         

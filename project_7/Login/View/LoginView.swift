@@ -1,10 +1,12 @@
 import UIKit
-
+var mapType : BMKUserTrackingMode = BMKUserTrackingModeFollowWithHeading //地图类型，默认罗盘模式
 class LoginView : UIView {
     
     var BgImage : UIImageView?
-
+    
     var LogoImage : UIImageView?
+    
+    var LogoImage_2 : UIImageView?
     
     var rainEmitterLayer: CAEmitterLayer?
     
@@ -14,7 +16,7 @@ class LoginView : UIView {
     
     var packageField : UITextField?
     
-    var oidField : UITextField?
+    //    var oidField : UITextField?
     
     var LoginButton : UIButton?
     
@@ -36,6 +38,10 @@ class LoginView : UIView {
     
     var QRImageView : UIImageView?
     
+    var mapLabel : UILabel?
+    
+    var mapSwitch : UISwitch?
+    
     override init(frame : CGRect)
         
     {
@@ -48,6 +54,9 @@ class LoginView : UIView {
         self.LogoImage = UIImageView()
         self.BgImage?.addSubview(LogoImage!)
         
+        self.LogoImage_2 = UIImageView()
+        self.BgImage?.addSubview(LogoImage_2!)
+        
         self.rainEmitterLayer = CAEmitterLayer()
         self.BgImage?.layer.addSublayer(rainEmitterLayer!)
         
@@ -59,8 +68,8 @@ class LoginView : UIView {
         self.packageField = UITextField()
         self.addSubview(packageField!)
         
-        self.oidField = UITextField()
-        self.addSubview(oidField!)
+        //        self.oidField = UITextField()
+        //        self.addSubview(oidField!)
         
         self.ScanButton = UIButton()
         self.addSubview(ScanButton!)
@@ -68,8 +77,11 @@ class LoginView : UIView {
         self.LoginButton = UIButton()
         self.addSubview(LoginButton!)
         
+        self.wechatButton = UIButton()
+        self.addSubview(wechatButton!)
+        
         self.pickerView = UIView()
-//        self.addSubview(pickerView!)
+        //        self.addSubview(pickerView!)
         
         self.picker = UIPickerView()
         self.pickerView?.addSubview(picker!)
@@ -79,9 +91,6 @@ class LoginView : UIView {
         
         self.cancelButton = UIButton()
         self.pickerView?.addSubview(cancelButton!)
-        
-        self.wechatButton = UIButton()
-        self.addSubview(wechatButton!)
 
         self.headImage = UIImageView()
         self.addSubview(headImage!)
@@ -91,6 +100,12 @@ class LoginView : UIView {
         
         self.QRImageView = UIImageView()
         self.addSubview(QRImageView!)
+        
+        self.mapLabel = UILabel()
+        self.addSubview(mapLabel!)
+        
+        self.mapSwitch = UISwitch()
+        self.addSubview(mapSwitch!)
         
         setUI()
         
@@ -107,6 +122,9 @@ class LoginView : UIView {
         
         self.LogoImage?.frame = CGRect(x: 20, y: 20, width: 100, height: 100)
         self.LogoImage?.image = UIImage(named: "logo.png")
+        
+        self.LogoImage_2?.frame = CGRect(x: ScreenSize.width/2-100, y: 20, width: 200, height: 68)
+        self.LogoImage_2?.image = UIImage(named: "jyzc.png")
         
         // 发射源的形状 是枚举类型 ,因为是下雨 所以要作为 直线发射
         self.rainEmitterLayer?.emitterShape = .line
@@ -139,59 +157,74 @@ class LoginView : UIView {
         // 添加到粒子发射器
         self.rainEmitterLayer?.emitterCells = [rainCell] as? [CAEmitterCell]
         
-        self.HostField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-80, width: 200, height: 30)
-        self.HostField?.backgroundColor = UIColor.white
+        self.HostField?.frame = CGRect(x: ScreenSize.width/2-90, y: ScreenSize.height/2-70, width: 180, height: 30)
+        //        self.HostField?.backgroundColor = UIColor.white
         self.HostField?.attributedPlaceholder = NSAttributedString.init(string:"请选择服务器", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
         self.HostField?.textAlignment = .center
+        self.HostField?.textColor = UIColor.white
         self.HostField?.font = UIFont.systemFont(ofSize: 13)
-        self.HostField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
-        self.HostField?.layer.borderWidth = 1
-        self.HostField?.layer.cornerRadius = 5
-        self.HostField?.layer.masksToBounds = true
-//        self.HostField?.keyboardType = .decimalPad
+        //        self.HostField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
+        //        self.HostField?.layer.borderWidth = 1
+        //        self.HostField?.layer.cornerRadius = 5
+        //        self.HostField?.layer.masksToBounds = true
+        self.HostField?.borderStyle = .none
+        self.HostField?.background = UIImage(named:"srk.png")
+        //        self.HostField?.keyboardType = .decimalPad
         self.HostField?.inputView = pickerView
         
-        self.packageField?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2-40, width: 130, height: 30)
-        self.packageField?.backgroundColor = UIColor.white
+        self.packageField?.frame = CGRect(x: ScreenSize.width/2-90, y: ScreenSize.height/2-35, width: 180, height: 30)
+        //        self.packageField?.backgroundColor = UIColor.white
         self.packageField?.attributedPlaceholder = NSAttributedString.init(string:"腰包ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
         self.packageField?.textAlignment = .center
+        self.packageField?.textColor = UIColor.white
         self.packageField?.font = UIFont.systemFont(ofSize: 13)
-        self.packageField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
-        self.packageField?.layer.borderWidth = 1
-        self.packageField?.layer.cornerRadius = 5
-        self.packageField?.layer.masksToBounds = true
+        //        self.packageField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
+        //        self.packageField?.layer.borderWidth = 1
+        //        self.packageField?.layer.cornerRadius = 5
+        //        self.packageField?.layer.masksToBounds = true
+        self.packageField?.borderStyle = .none
+        self.packageField?.background = UIImage(named:"srk.png")
         self.packageField?.keyboardType = .numbersAndPunctuation
         self.packageField?.returnKeyType = .done
         
-        self.oidField?.frame = CGRect(x: ScreenSize.width/2+40, y: ScreenSize.height/2-40, width: 60, height: 30)
-        self.oidField?.backgroundColor = UIColor.white
-        self.oidField?.attributedPlaceholder = NSAttributedString.init(string:"机构ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
-        self.oidField?.textAlignment = .center
-        self.oidField?.font = UIFont.systemFont(ofSize: 13)
-        self.oidField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
-        self.oidField?.layer.borderWidth = 1
-        self.oidField?.layer.cornerRadius = 5
-        self.oidField?.layer.masksToBounds = true
-        self.oidField?.keyboardType = .numberPad
-        self.oidField?.returnKeyType = .done
+        //        self.oidField?.frame = CGRect(x: ScreenSize.width/2+40, y: ScreenSize.height/2-35, width: 50, height: 30)
+        //        self.oidField?.backgroundColor = UIColor.white
+        //        self.oidField?.attributedPlaceholder = NSAttributedString.init(string:"机构ID", attributes: [NSAttributedString.Key.foregroundColor:UIColor.lightGray])
+        //        self.oidField?.textAlignment = .center
+        //        self.oidField?.font = UIFont.systemFont(ofSize: 13)
+        //        self.oidField?.layer.borderColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1).cgColor
+        //        self.oidField?.layer.borderWidth = 1
+        //        self.oidField?.layer.cornerRadius = 5
+        //        self.oidField?.layer.masksToBounds = true
+        //        self.oidField?.keyboardType = .numberPad
+        //        self.oidField?.returnKeyType = .done
         
-        self.LoginButton?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2, width: 100, height: 60)
-        self.LoginButton?.setImage(UIImage(named: "youke.png"), for: .normal)
-//        self.LoginButton?.setTitle("登录", for: .normal)
-//        self.LoginButton?.setTitleColor(UIColor.white, for: .normal)
-//        self.LoginButton?.titleLabel?.font = UIFont.systemFont(ofSize: 13)
-//        self.LoginButton?.backgroundColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1)
-//        self.LoginButton?.layer.cornerRadius = 5
-//        self.LoginButton?.layer.masksToBounds = true
+        self.LoginButton?.frame = CGRect(x: ScreenSize.width/2-90, y: ScreenSize.height/2, width: 85, height: 75)
+        self.LoginButton?.setImage(UIImage(named: "ykdl.png"), for: .normal)
+        //        self.LoginButton?.setTitle("登录", for: .normal)
+        //        self.LoginButton?.setTitleColor(UIColor.white, for: .normal)
+        //        self.LoginButton?.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        //        self.LoginButton?.backgroundColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1)
+        //        self.LoginButton?.layer.cornerRadius = 5
+        //        self.LoginButton?.layer.masksToBounds = true
         
-        self.ScanButton?.frame = CGRect(x: ScreenSize.width/2-100, y: ScreenSize.height/2+70, width: 200, height: 64)
-        self.ScanButton?.setImage(UIImage(named: "saomiao.png"), for: .normal)
-//        self.ScanButton?.setTitle("扫一扫", for: .normal)
-//        self.ScanButton?.setTitleColor(UIColor.white, for: .normal)
-//        self.ScanButton?.titleLabel?.font = UIFont.systemFont(ofSize: 13)
-//        self.ScanButton?.backgroundColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1)
-//        self.ScanButton?.layer.cornerRadius = 5
-//        self.ScanButton?.layer.masksToBounds = true
+        self.wechatButton?.frame = CGRect(x: ScreenSize.width/2+5, y: ScreenSize.height/2, width: 85, height: 75)
+        self.wechatButton?.setImage(UIImage(named: "wxdl.png"), for: .normal)
+        //        self.wechatButton?.setTitle("微信登陆", for: .normal)
+        //        self.wechatButton?.setTitleColor(UIColor.white, for: .normal)
+        //        self.wechatButton?.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        //        self.wechatButton?.backgroundColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1)
+        //        self.wechatButton?.layer.cornerRadius = 5
+        //        self.wechatButton?.layer.masksToBounds = true
+        
+        self.ScanButton?.frame = CGRect(x: ScreenSize.width/2-90, y: ScreenSize.height/2+80, width: 180, height: 80)
+        self.ScanButton?.setImage(UIImage(named: "smdl.png"), for: .normal)
+        //        self.ScanButton?.setTitle("扫一扫", for: .normal)
+        //        self.ScanButton?.setTitleColor(UIColor.white, for: .normal)
+        //        self.ScanButton?.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        //        self.ScanButton?.backgroundColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1)
+        //        self.ScanButton?.layer.cornerRadius = 5
+        //        self.ScanButton?.layer.masksToBounds = true
         
         self.pickerView?.frame = CGRect(x: 0, y: ScreenSize.height-(200+UIApplication.shared.statusBarFrame.height), width: ScreenSize.width, height: 200)
         self.pickerView?.backgroundColor = UIColor(red: 220/255, green: 220/255, blue: 220/255, alpha: 1)
@@ -210,15 +243,6 @@ class LoginView : UIView {
         self.doneButton?.setTitle("确 定", for: .normal)
         self.doneButton?.setTitleColor(UIColor(red: 18/255, green: 93/255, blue: 255/255, alpha: 1), for: .normal)
         
-        self.wechatButton?.frame = CGRect(x: ScreenSize.width/2, y: ScreenSize.height/2, width: 100, height: 60)
-        self.wechatButton?.setImage(UIImage(named: "weixin.png"), for: .normal)
-//        self.wechatButton?.setTitle("微信登陆", for: .normal)
-//        self.wechatButton?.setTitleColor(UIColor.white, for: .normal)
-//        self.wechatButton?.titleLabel?.font = UIFont.systemFont(ofSize: 13)
-//        self.wechatButton?.backgroundColor = UIColor(red: 230/255, green: 172/255, blue: 59/255, alpha: 1)
-//        self.wechatButton?.layer.cornerRadius = 5
-//        self.wechatButton?.layer.masksToBounds = true
-        
         self.headImage?.frame = CGRect(x: ScreenSize.width-150, y: ScreenSize.height/2-50, width: 100, height: 100)
         self.headImage?.layer.cornerRadius = 5
         self.headImage?.layer.masksToBounds = true
@@ -234,5 +258,34 @@ class LoginView : UIView {
         self.QRImageView?.layer.cornerRadius = 5
         self.QRImageView?.layer.masksToBounds = true
         self.QRImageView?.isHidden = true
+        
+        self.mapLabel?.frame = CGRect(x: ScreenSize.width-110, y: 55, width: 60, height: 20)
+        self.mapLabel?.text = "罗盘地图"
+        self.mapLabel?.font = UIFont.systemFont(ofSize: 14)
+        self.mapLabel?.textColor = UIColor.white
+        
+        self.mapSwitch?.frame = CGRect(x: ScreenSize.width-50, y: 50, width: 40, height: 20)
+        //开关无法设置大小，只能设置缩放
+        self.mapSwitch?.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
+        //设置开启状态显示的颜色
+        self.mapSwitch?.onTintColor = UIColor.orange
+        //设置关闭状态的颜色
+        self.mapSwitch?.tintColor = UIColor.orange
+        //设置开关默认开启状态
+        self.mapSwitch?.isOn = true
+        self.mapSwitch?.addTarget(self, action: #selector(switchDidChange), for: .valueChanged)
+        //获取保存的状态值
+        let state = UserDefaults.standard.bool(forKey: "switchState")
+        self.mapSwitch?.setOn(state, animated: true)
+    }
+    
+    @objc func switchDidChange(sender: UISwitch){
+        //把当前状态保存起来
+        UserDefaults.standard.set(sender.isOn, forKey: "switchState")
+        if sender.isOn {
+            mapType = BMKUserTrackingModeFollowWithHeading   //罗盘模式
+        } else {
+            mapType = BMKUserTrackingModeHeading   //跟随模式
+        }
     }
 }

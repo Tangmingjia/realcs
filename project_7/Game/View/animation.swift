@@ -1,4 +1,4 @@
-func animation(ImageName : String, ImageView : UIImageView){
+func animation(ImageName: String, ImageView: UIImageView){
     guard let imgPath = Bundle.main.path(forResource: ImageName, ofType: "gif") else { return }
     guard let imgData = NSData(contentsOfFile: imgPath) else { return }
     
